@@ -142,12 +142,12 @@ const VerifyEmail = () => {
                 <p className="text-gray-300 text-lg">{message}</p>
               </div>
               <motion.button
-                onClick={() => window.location.reload()}
+                onClick={() => navigate("/")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 sm:py-3.5 px-6 text-base sm:text-lg font-medium bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all"
               >
-                Resend Verification Link
+                Back to Home
               </motion.button>
             </motion.div>
           )}
@@ -186,7 +186,7 @@ const VerifyEmail = () => {
               </p>
 
               <motion.button
-                onClick={() => window.location.reload()}
+                onClick={() => navigate("/")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 sm:py-3.5 px-6 text-base sm:text-lg font-medium bg-gradient-to-br from-emerald-400 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all"
