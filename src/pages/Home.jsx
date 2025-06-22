@@ -63,27 +63,27 @@ export default function Home() {
   const faqItems = [
     {
       q: "Is LinksStack free?",
-      a: "Yes! Start free. Upgrade anytime for pro features.",
+      a: "Yes! You can start with our free plan, which lets you add up to 3 links. Upgrade anytime to PRO for unlimited links, custom URLs, themes, and advanced analytics.",
     },
     {
-      q: "Can I use my custom domain?",
-      a: "Yep — Pro users can link their own domain.",
+      q: "Can I use my own domain?",
+      a: "Absolutely—PRO users can connect a custom domain or subdomain to their LinksStack profile via the Domain Settings panel.",
     },
     {
       q: "Can I customize my LinksStack page?",
-      a: "Absolutely! You can personalize your page with themes, colors, fonts, and layout options.",
+      a: "Yes! All users can upload a profile picture or logo. PRO users unlock full customization.",
     },
     {
       q: "Do I get analytics?",
-      a: "Yes! You can track clicks, views, and engagement metrics to see what’s performing best.",
+      a: "Yes! The free plan includes basic click and view counts. PRO users get advanced insights like referral sources, geolocation, and date-range filters.",
     },
     {
       q: "Is my data secure?",
-      a: "We take your privacy seriously. Your data is encrypted and never shared with third parties.",
+      a: "We use end-to-end encryption for all data, encrypt user passwords and critical data and store securely.",
     },
     {
-      q: "Which platforms does LinksStack support?",
-      a: "LinksStack works with all major social platforms — TikTok, Instagram, YouTube, Spotify, and more.",
+      q: "Which platforms can I link or embed?",
+      a: "LinksStack supports all major social platforms— Instagram, TikTok, YouTube, Discord, and more.",
     },
   ];
 
