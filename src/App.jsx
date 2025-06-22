@@ -16,7 +16,9 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
 import VerifyAccount from "./pages/VerifyAccount";
 import HelpCenter from "./pages/HelpCenter";
-
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import TermsAndPrivacy from "./pages/TermsAndPrivacy";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -47,6 +49,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/account/verify" element={<VerifyEmail />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/terms-and-privacy" element={<TermsAndPrivacy />} />
 
         <Route
           path="/dashboard"

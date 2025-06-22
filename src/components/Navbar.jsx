@@ -9,56 +9,56 @@ import {
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 
-// detect scroll direction
+// Hook to detect scroll direction
 function useScrollDirection() {
-  const [scrollDirection, setScrollDirection] = useState(null);
-  const [prevOffset, setPrevOffset] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState("up");
+  const [lastY, setLastY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentOffset = window.pageYOffset;
-      setScrollDirection(currentOffset > prevOffset ? "down" : "up");
-      setPrevOffset(currentOffset);
+      const currentY = window.scrollY;
+      setScrollDirection(currentY > lastY ? "down" : "up");
+      setLastY(currentY);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [prevOffset]);
+  }, [lastY]);
 
   return scrollDirection;
 }
 
 function Navbar() {
-  const user = useAuthStore((state) => state.user);
-  const userDetails = useAuthStore((state) => state.userDetails);
-  const isPremium = useAuthStore((state) => state.isPremium);
+  const { user, userDetails, isPremium } = useAuthStore();
   const scrollDirection = useScrollDirection();
   const [scrolled, setScrolled] = useState(false);
-
   const navigate = useNavigate();
-  const location = useLocation();
-  const homeRoute = location.pathname === "/";
-  const authRoute =
-    location.pathname === "/login" || location.pathname === "/signup";
-  const verifyAccountRoute = location.pathname.startsWith("/account/verify");
+  const { pathname } = useLocation();
 
-  // Additional effect to track if user has scrolled at all
+  const homeRoute = pathname === "/";
+  const authRoute = ["/login", "/signup"].includes(pathname);
+  const verifyRoute = pathname.startsWith("/account/verify");
+
   useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      setScrolled(isScrolled);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Determine mobile nav visibility
+  if (verifyRoute) return null;
+
   const showMobileNav = scrollDirection === "up" || !scrolled;
 
-  if (verifyAccountRoute) {
-    return null;
-  }
+  const commonLinks = !user
+    ? [
+        { to: "/about", label: "About Us" },
+        { to: "/contact", label: "Contact" },
+        { to: "/terms-and-privacy", label: "Terms And Privacy" },
+      ]
+    : [
+        { to: "/analytics", label: "Analytics" },
+        { to: "/settings", label: "Settings" },
+      ];
 
   return (
     <header className="fixed top-0 w-full bg-gray-900/10 backdrop-blur-xl z-50">
@@ -72,46 +72,31 @@ function Navbar() {
           LinksStack
         </NavLink>
 
-        {/* Navigation - desktop*/}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6">
-          {!homeRoute && (
+          {!homeRoute && user && (
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `text-gray-200 text-sm font-medium transition-colors duration-300 font-poppins ${
-                  isActive ? "text-sky-500" : "hover:text-gray-400"
+                `text-sm font-medium font-poppins transition-colors ${
+                  isActive
+                    ? "text-sky-500"
+                    : "text-gray-200 hover:text-gray-400"
                 }`
               }
             >
               Dashboard
             </NavLink>
           )}
-          {(!user
-            ? [
-                // Guest Navigation
-                { to: "/about", label: "About Us" },
-                { to: "/contact", label: "Contact" },
-                { to: "/terms", label: "Terms" },
-                { to: "/privacy", label: "Privacy" },
-              ]
-            : !isPremium
-            ? [
-                // User Navigation
-                { to: "/analytics", label: "Analytics" },
-                { to: "/settings", label: "Settings" },
-              ]
-            : [
-                // Pro User Navigation
-                { to: "/analytics", label: "Analytics" },
-                { to: "/settings", label: "Settings" },
-              ]
-          ).map(({ to, label }) => (
+          {commonLinks.map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `text-gray-200 text-sm font-medium transition-colors duration-300 font-poppins ${
-                  isActive ? "text-sky-500" : "hover:text-gray-400"
+                `text-sm font-medium font-poppins transition-colors ${
+                  isActive
+                    ? "text-sky-500"
+                    : "text-gray-200 hover:text-gray-400"
                 }`
               }
             >
@@ -122,7 +107,7 @@ function Navbar() {
             (isPremium ? (
               <NavLink
                 to="/pro-support"
-                className={`bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-600 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500 text-sm font-medium transition-colors duration-300 font-poppins`}
+                className="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-600 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500 text-sm font-medium font-poppins transition-colors"
               >
                 PRO Support
               </NavLink>
@@ -130,7 +115,7 @@ function Navbar() {
               user && (
                 <NavLink
                   to="/help"
-                  className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
+                  className="text-sm font-medium font-poppins text-gray-200 hover:text-gray-400 transition-colors"
                 >
                   Help Center
                 </NavLink>
@@ -138,13 +123,13 @@ function Navbar() {
             ))}
         </nav>
 
-        {/* Login / Logout Button */}
+        {/* Auth / CTA Buttons */}
         {user ? (
           !homeRoute ? (
             <NavLink
               to="/profile"
               className={({ isActive }) =>
-                `flex items-center gap-2 px-2 pr-3 py-1.5 rounded-full transition-all duration-300 ${
+                `flex items-center gap-2 px-2 pr-3 py-1.5 rounded-full transition-all ${
                   isActive
                     ? "bg-sky-500/20 text-sky-500"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -153,94 +138,74 @@ function Navbar() {
             >
               {userDetails?.avatarUrl ? (
                 <img
-                  src={userDetails?.avatarUrl}
-                  alt="Profile"
+                  src={userDetails.avatarUrl}
+                  alt="Avatar"
                   className="w-8 h-8 rounded-full object-cover border-2 border-sky-500"
                 />
               ) : (
-                <CircleUserRound className="h-6 w-6 m-0.5 rounded-full stroke-[1.5]" />
+                <CircleUserRound className="h-6 w-6 rounded-full stroke-[1.5]" />
               )}
               <span className="text-sm font-medium font-poppins">Profile</span>
             </NavLink>
           ) : isPremium ? (
             <button
-              type="button"
               onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-300 backdrop-blur-sm border border-white/10 bg-sky-600/20 text-sky-500 hover:bg-sky-900/30"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/10 bg-sky-600/20 text-sky-500 hover:bg-sky-900/30 transition-all font-poppins"
             >
               <LayoutDashboard className="h-5 w-5" />
-              <span className="text-sm lg:text-base font-medium font-poppins">
+              <span className="text-sm lg:text-base font-medium">
                 Dashboard
               </span>
             </button>
           ) : (
             <button
               onClick={() => navigate("/upgrade")}
-              className="px-3 sm:px-5 py-3 text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-amber-600 brightness-110 hover:brightness-125 text-black font-semibold rounded-md shadow duration-300 font-poppins"
+              className="px-3 sm:px-5 py-3 text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-black font-semibold rounded-md shadow hover:brightness-125 transition duration-300 font-poppins"
             >
               Become a PRO
               <Sparkles className="inline-block ml-1 h-4 w-4" />
             </button>
           )
-        ) : authRoute ? (
-          " "
-        ) : (
+        ) : !authRoute ? (
           <NavLink
             to="/login"
-            className="px-5 py-2 text-sm bg-white text-gray-900 font-semibold rounded-md shadow hover:bg-white/85 transition-colors duration-300"
+            className="px-5 py-2 text-sm bg-white text-gray-900 font-semibold rounded-md shadow hover:bg-white/85 transition"
           >
             Login
           </NavLink>
-        )}
+        ) : null}
       </div>
 
-      {/* Navigation - mobile */}
+      {/* Mobile Navigation */}
       {!authRoute && (
         <nav
-          className={`w-full md:hidden gap-6 mb-2 pt-2 -mt-1 transition-transform duration-300 ${
-            showMobileNav
-              ? "transform translate-y-0 flex justify-center"
-              : "transform -translate-y-full hidden"
+          className={`w-full md:hidden gap-6 pt-2 mb-2 transition-transform duration-300 ${
+            showMobileNav ? "flex justify-center" : "hidden -translate-y-full"
           }`}
         >
-          {!homeRoute && (
+          {!homeRoute && user && (
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `text-gray-200 text-sm font-medium transition-colors duration-300 font-poppins ${
-                  isActive ? "text-sky-500" : "hover:text-gray-400"
+                `text-sm font-medium font-poppins transition-colors ${
+                  isActive
+                    ? "text-sky-500"
+                    : "text-gray-200 hover:text-gray-400"
                 }`
               }
             >
               Dashboard
             </NavLink>
           )}
-          {(!user
-            ? [
-                // Guest Navigation
-                { to: "/about", label: "About Us" },
-                { to: "/contact", label: "Contact" },
-                { to: "/terms", label: "Terms" },
-                { to: "/privacy", label: "Privacy" },
-              ]
-            : !isPremium
-            ? [
-                // User Navigation
-                { to: "/analytics", label: "Analytics" },
-                { to: "/settings", label: "Settings" },
-              ]
-            : [
-                // Pro User Navigation
-                { to: "/analytics", label: "Analytics" },
-                { to: "/settings", label: "Settings" },
-              ]
-          ).map(({ to, label }) => (
+          {commonLinks.map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `text-gray-200 text-sm font-medium transition-colors duration-300 font-poppins ${
-                  isActive ? "text-sky-500" : "hover:text-gray-400"
+                `text-sm font-medium font-poppins transition-colors ${
+                  isActive
+                    ? "text-sky-500"
+                    : "text-gray-200 hover:text-gray-400"
                 }`
               }
             >
@@ -251,7 +216,7 @@ function Navbar() {
             (isPremium ? (
               <NavLink
                 to="/pro-support"
-                className={`bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-600 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500 text-sm font-medium transition-colors duration-300 font-poppins`}
+                className="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-600 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500 text-sm font-medium font-poppins transition"
               >
                 PRO Support
               </NavLink>
@@ -259,7 +224,7 @@ function Navbar() {
               user && (
                 <NavLink
                   to="/help"
-                  className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
+                  className="text-sm font-medium font-poppins text-gray-200 hover:text-gray-400 transition"
                 >
                   Help Center
                 </NavLink>
