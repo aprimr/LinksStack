@@ -19,6 +19,7 @@ import HelpCenter from "./pages/HelpCenter";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TermsAndPrivacy from "./pages/TermsAndPrivacy";
+import ProSupport from "./pages/ProSupport";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -83,6 +84,15 @@ function App() {
           element={
             <PrivateRoute>
               <HelpCenter />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/pro-support"
+          element={
+            <PrivateRoute>
+              <ProSupport />
             </PrivateRoute>
           }
         />

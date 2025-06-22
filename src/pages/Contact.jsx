@@ -5,6 +5,8 @@ import {
   Code,
   Heart,
   Globe,
+  ArrowRight,
+  ChevronRight,
 } from "lucide-react";
 import { FaGithub, FaLinkedin, FaDiscord } from "react-icons/fa";
 import { easeInOut, motion } from "framer-motion";
@@ -77,31 +79,13 @@ const Contact = () => {
       link: "https://github.com/aprimr/LinksStack/issues",
     },
     {
-      question: "Where's the documentation?",
-      answer: "Available in the GitHub repository's README and wiki pages.",
-      icon: Code,
-      bgColor: "bg-emerald-900/30",
-      iconColor: "text-emerald-400",
-      borderColor: "border-emerald-800/50",
-      link: "https://github.com/aprimr/LinksStack#readme",
-    },
-    {
       question: "How to get support?",
       answer: "Email us or open a GitHub discussion for help.",
       icon: MessageSquare,
-      bgColor: "bg-amber-900/30",
-      iconColor: "text-amber-400",
-      borderColor: "border-amber-800/50",
+      bgColor: "bg-emerald-900/30",
+      iconColor: "text-emerald-400",
+      borderColor: "border-emerald-800/50",
       link: "https://github.com/aprimr/LinksStack/discussions",
-    },
-    {
-      question: "Can I contribute?",
-      answer: "Absolutely! Check the GitHub repo for contribution guidelines.",
-      icon: Heart,
-      bgColor: "bg-rose-900/30",
-      iconColor: "text-rose-400",
-      borderColor: "border-rose-800/50",
-      link: "https://github.com/aprimr/LinksStack",
     },
   ];
 
@@ -225,6 +209,9 @@ const Contact = () => {
                       <span className="font-medium text-gray-200 text-sm sm:text-base">
                         Report an Issue
                       </span>
+                      <div className="ml-auto group-hover:-rotate-45 transition-all duration-300">
+                        <ArrowRight className="w-5 h-5 sm:w-5 sm:h-5 text-purple-400 stroke-[3]" />
+                      </div>
                     </div>
                     <p className="text-gray-400 mt-2 text-xs">
                       Found a bug? Open an issue on our GitHub repository.
@@ -247,6 +234,10 @@ const Contact = () => {
                       <span className="font-medium text-gray-200 text-sm sm:text-base">
                         Join Discussions
                       </span>
+
+                      <div className="ml-auto group-hover:-rotate-45 transition-all duration-300">
+                        <ArrowRight className="w-5 h-5 sm:w-5 sm:h-5 text-blue-400 stroke-[3]" />
+                      </div>
                     </div>
                     <p className="text-gray-400 mt-2 text-xs">
                       Have questions? Join our GitHub discussions.
@@ -260,7 +251,7 @@ const Contact = () => {
 
         {/* FAQ Section */}
         <motion.div className="mt-12" variants={itemVariants}>
-          <h2 className="text-2xl font-bold text-center mb-8 text-white">
+          <h2 className="text-4xl bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 bg-clip-text text-transparent font-bold text-center mb-8">
             Common Questions
           </h2>
           <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
@@ -270,7 +261,7 @@ const Contact = () => {
                 href={faq.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`p-5 sm:p-6 rounded-xl ${faq.bgColor} border ${faq.borderColor} backdrop-blur-sm hover:bg-opacity-50 transition-all`}
+                className={`p-5 sm:p-6 rounded-xl ${faq.bgColor} border ${faq.borderColor} backdrop-blur-sm hover:bg-opacity-50 transition-all group`}
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.3 }}
               >
@@ -283,6 +274,12 @@ const Contact = () => {
                   <h3 className="font-semibold text-white text-sm sm:text-base">
                     {faq.question}
                   </h3>
+
+                  <div className="ml-auto group-hover:-rotate-45 transition-all duration-300">
+                    <ChevronRight
+                      className={`w-5 h-5 sm:w-5 sm:h-5 ${faq.iconColor} stroke-[2]`}
+                    />
+                  </div>
                 </div>
                 <p className="text-gray-400 text-xs sm:text-sm pl-10 font-poppins">
                   {faq.answer}

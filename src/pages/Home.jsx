@@ -123,7 +123,7 @@ export default function Home() {
                 <span className="text-sm sm:text-base lg:text-lg font-medium font-poppins truncate">
                   {user
                     ? `linksstack.com/${userDetails?.profileSlug}`
-                    : "linksstack.com/aT7bU9zP"}
+                    : `linksstack.com/aT7bU9zP`}
                 </span>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function Home() {
                 </div>
                 <ul className="space-y-3 text-lg text-gray-300 mb-6">
                   {[
-                    "Up to 5 active links",
+                    "Up to 3 active links",
                     "Basic support",
                     "Basic analytics",
                     "Basic Theme",
