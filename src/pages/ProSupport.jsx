@@ -2,72 +2,51 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import useTicketStore from "../store/ticketStore";
 import {
   Mail,
   Zap,
-  CheckCircle,
   Sparkles,
   ChevronRight,
   AlertCircle,
   Clock,
   Check,
-  X,
   Ticket,
   TicketPlus,
   ScrollText,
   RefreshCcw,
   TicketSlash,
+  CircleUserRound,
+  PauseCircle,
+  CheckCircle2,
+  XCircle,
+  Archive,
+  Ban,
+  Trash2,
+  Calendar,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const ProSupport = () => {
   const user = useAuthStore((state) => state.user);
   const isPremium = useAuthStore((state) => state.isPremium);
+
+  const fetchTickets = useTicketStore((state) => state.fetchTickets);
+  const tickets = useTicketStore((state) => state.tickets);
+  const addTicket = useTicketStore((state) => state.addTicket);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("raise");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selectedTag, setSelectedTag] = useState(null);
-  const availableTags = [
-    "Bug",
-    "Link",
-    "Account",
-    "Billing",
-    "Feature Request",
-    "Other",
-  ];
+  const [loading, setLoading] = useState("");
+  const [details, setDetails] = useState("");
 
   const [subject, setSubject] = useState("");
+  const [ticketTag, setTicketTag] = useState(null);
   const [message, setMessage] = useState("");
-  const [tickets, setTickets] = useState([
-    {
-      id: 1,
-      subject: "Login issues",
-      message: "Unable to login with my credentials",
-      status: "open",
-      date: "2023-05-15",
-    },
-    {
-      id: 2,
-      subject: "Feature request",
-      message: "Need dark mode for dashboard",
-      status: "in-progress",
-      date: "2023-05-10",
-    },
-    {
-      id: 3,
-      subject: "Payment problem",
-      message: "Subscription not renewing automatically",
-      status: "resolved",
-      date: "2023-05-01",
-    },
-    {
-      id: 4,
-      subject: "Bug report",
-      message: "Dashboard crashes on mobile",
-      status: "rejected",
-      date: "2023-04-28",
-    },
-  ]);
+  const availableTags = ["Bug", "Link", "Account", "Billing", "Other"];
 
   useEffect(() => {
     if (!isPremium) {
@@ -75,57 +54,89 @@ const ProSupport = () => {
     }
   }, [isPremium, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newTicket = {
-      id: tickets.length + 1,
-      subject,
-      message,
-      status: "open",
-      date: new Date().toISOString().split("T")[0],
-    };
-    setTickets([newTicket, ...tickets]);
+    setLoading("creating-ticket");
+
+    if (!subject || !ticketTag || !message) {
+      toast.error("Please fill in all fields");
+      setLoading("");
+      return;
+    }
+
+    try {
+      await addTicket(user.$id, user.email, subject, ticketTag, message);
+      toast.success("Ticket raised successfully");
+      fetchTickets();
+    } catch (error) {
+      console.error("Error adding ticket:", error);
+    } finally {
+      setLoading("");
+    }
+
     setSubject("");
     setMessage("");
+    setTicketTag(null);
     setIsSubmitted(true);
   };
 
   const getStatusStyles = (status) => {
     switch (status) {
-      case "open":
+      case "new":
         return {
           bg: "bg-blue-900/20",
           border: "border-blue-700/40",
           text: "text-blue-400",
-          icon: <Clock className="h-4 w-4" />,
+          icon: <Clock className="h-[14px] w-[14px]" />,
         };
       case "in-progress":
         return {
           bg: "bg-amber-900/20",
           border: "border-amber-700/40",
           text: "text-amber-400",
-          icon: <AlertCircle className="h-4 w-4" />,
+          icon: <AlertCircle className="h-[14px] w-[14px]" />,
+        };
+      case "on-hold":
+        return {
+          bg: "bg-orange-900/20",
+          border: "border-orange-700/40",
+          text: "text-orange-400",
+          icon: <PauseCircle className="h-[14px] w-[14px]" />,
         };
       case "resolved":
         return {
           bg: "bg-green-900/20",
           border: "border-green-700/40",
           text: "text-green-400",
-          icon: <Check className="h-4 w-4" />,
+          icon: <CheckCircle2 className="h-[14px] w-[14px]" />,
         };
       case "rejected":
         return {
           bg: "bg-red-900/20",
           border: "border-red-700/40",
           text: "text-red-400",
-          icon: <X className="h-4 w-4" />,
+          icon: <XCircle className="h-[14px] w-[14px]" />,
+        };
+      case "closed":
+        return {
+          bg: "bg-gray-800/20",
+          border: "border-gray-600/40",
+          text: "text-gray-300",
+          icon: <Archive className="h-[14px] w-[14px]" />,
+        };
+      case "cancelled":
+        return {
+          bg: "bg-zinc-800/20",
+          border: "border-zinc-600/40",
+          text: "text-zinc-400",
+          icon: <Ban className="h-[14px] w-[14px]" />,
         };
       default:
         return {
           bg: "bg-gray-800/30",
           border: "border-gray-700/40",
           text: "text-gray-400",
-          icon: <Clock className="h-4 w-4" />,
+          icon: <Clock className="h-[14px] w-[14px]" />,
         };
     }
   };
@@ -195,7 +206,10 @@ const ProSupport = () => {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.58 }}
-            onClick={() => setActiveTab("raise")}
+            onClick={() => {
+              setActiveTab("raise");
+              setIsSubmitted(false);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border backdrop-blur-sm ${
               activeTab === "raise"
                 ? "border-indigo-500/30 bg-indigo-600/20 text-indigo-400 shadow-lg shadow-indigo-500/10"
@@ -203,12 +217,17 @@ const ProSupport = () => {
             }`}
           >
             <TicketPlus className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="font-poppins">Raise Ticket</span>
+            <span className="font-poppins">Raise a Ticket</span>
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.58 }}
-            onClick={() => setActiveTab("view")}
+            onClick={() => {
+              setActiveTab("view");
+              setIsSubmitted(false);
+              fetchTickets(user.$id);
+              console.log(tickets);
+            }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border backdrop-blur-sm ${
               activeTab === "view"
                 ? "border-indigo-500/30 bg-indigo-600/20 text-indigo-400 shadow-lg shadow-indigo-500/10"
@@ -286,6 +305,18 @@ const ProSupport = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="flex flex-col items-start gap-2">
+                    <p className="text-sm sm:text-base font-medium text-gray-200">
+                      Raise Ticket as
+                    </p>
+                    <div className="inline-flex items-center gap-2 bg-gray-600/30 rounded-full px-3 py-1.5">
+                      <CircleUserRound className="h-5 w-5 text-gray-400" />
+                      <span className="font-poppins text-sm text-gray-300">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-200 mb-2">
                       Subject
@@ -296,7 +327,6 @@ const ProSupport = () => {
                       onChange={(e) => setSubject(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-300 placeholder:font-poppins placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                       placeholder="Briefly describe your issue"
-                      required
                     />
                   </div>
 
@@ -310,10 +340,10 @@ const ProSupport = () => {
                           type="button"
                           key={tag}
                           onClick={() =>
-                            setSelectedTag(tag === selectedTag ? null : tag)
+                            setTicketTag(tag === ticketTag ? null : tag)
                           }
                           className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-md text-xs font-medium transition-colors backdrop-blur-sm border ${
-                            selectedTag === tag
+                            ticketTag === tag
                               ? "bg-blue-500/10 border-blue-700 text-blue-400 shadow shadow-blue-500/10"
                               : "bg-gray-900/50 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
                           }`}
@@ -334,16 +364,20 @@ const ProSupport = () => {
                       onChange={(e) => setMessage(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-300 placeholder:font-poppins placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                       placeholder="Please provide detailed information about your request..."
-                      required
                     />
                   </div>
 
                   <div className="pt-2 flex justify-between">
                     <button
                       type="submit"
-                      className="px-5 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 font-poppins"
+                      disabled={loading === "creating-ticket"}
+                      className="px-7 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 font-poppins"
                     >
-                      Submit Ticket
+                      {loading === "creating-ticket" ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Create Ticket"
+                      )}
                     </button>
                   </div>
                 </form>
@@ -396,42 +430,125 @@ const ProSupport = () => {
                 </motion.button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-4 md:grid-cols-2 ">
                 {tickets.map((ticket) => {
-                  const statusStyles = getStatusStyles(ticket.status);
+                  const statusStyles = getStatusStyles(ticket.ticketStatus);
                   return (
                     <motion.div
-                      key={ticket.id}
+                      key={ticket.$id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`p-5 rounded-xl border ${statusStyles.border} ${statusStyles.bg} backdrop-blur-sm`}
+                      className={`relative p-5 rounded-2xl border ${statusStyles.border} ${statusStyles.bg} backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow`}
                     >
-                      <div className="relative flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium text-white">
-                            {ticket.subject}
-                          </h3>
-                          <p className="text-sm text-gray-300 mt-2">
-                            {ticket.message}
-                          </p>
-                        </div>
-                        <div className="absolute -top-5 -right-5 flex items-center gap-2">
-                          <span
-                            className={`w-auto text-xs sm:text-sm px-2.5 py-1 rounded-bl-xl ${statusStyles.text} ${statusStyles.bg} `}
+                      {/* Status Badge */}
+                      <div className="absolute top-0 right-0">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-xl text-[11px] font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} uppercase`}
+                        >
+                          {statusStyles.icon}
+                          {ticket.ticketStatus}
+                        </span>
+                      </div>
+                      {/* Date */}
+                      <div className="absolute top-0 left-0">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-br-xl rounded-tl-xl text-[11px] font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} uppercase`}
+                        >
+                          <Calendar className="h-[14px] w-[14px]" />
+                          {ticket.$createdAt.split("T")[0]}
+                        </span>
+                      </div>
+
+                      {/* Ticket Info */}
+                      <div className="flex flex-col gap-1 mt-3">
+                        {/* Subject */}
+                        <h3
+                          className={`text-lg sm:text-xl font-semibold font-poppins ${
+                            details !== ticket.$id ? "line-clamp-1" : ""
+                          }`}
+                        >
+                          {ticket.subject}
+                        </h3>
+
+                        {/* Message */}
+                        <p
+                          className={`text-sm sm:text-lg font-semibold text-gray-400 font-poppins ${
+                            details !== ticket.$id ? "line-clamp-3" : ``
+                          }`}
+                        >
+                          - {ticket.message}
+                        </p>
+
+                        {details === ticket.$id && (
+                          <div className="mt-3 bg-gray-800/30 border border-gray-700/50 p-3 rounded-xl text-gray-200 text-sm space-y-2 mb-1">
+                            <div className="flex items-center gap-2 font-semibold text-emerald-400 text-xs uppercase tracking-wide">
+                              <MessageSquare className="h-4 w-4" />
+                              Admin Response
+                            </div>
+                            {ticket.response ? (
+                              <p className="text-gray-300 leading-relaxed">
+                                {ticket.response}
+                              </p>
+                            ) : (
+                              <p className="text-gray-500 italic">
+                                No response yet.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="flex flex-col w-full gap-3 mt-2 pt-3 border-t border-gray-700/40">
+                        {/* Ticket ID and Tag */}
+                        <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-2">
+                          {/* Ticket ID */}
+                          <div
+                            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}
                           >
-                            {ticket.status.replace("-", " ")}
+                            <Ticket className="h-3.5 w-3.5" />
+                            <span className="truncate max-w-[180px] sm:max-w-[160px]">
+                              {ticket.$id}
+                            </span>
+                          </div>
+
+                          {/* Tag */}
+                          <span
+                            className={`px-2.5 py-1 rounded-md text-xs font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} whitespace-nowrap`}
+                          >
+                            {ticket.ticketTag}
                           </span>
                         </div>
-                      </div>
-                      <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-700/50">
-                        <span className="text-xs text-gray-400">
-                          {ticket.date}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button className="text-xs  text-amber-400 hover:text-amber-300 flex items-center gap-1">
-                            <span>View</span>
-                            <ChevronRight className="h-3 w-3" />
-                          </button>
+
+                        {/* Buttons */}
+                        <div className="flex justify-between sm:justify-end items-center gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setActiveTab("view")}
+                            className="flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-sm transition-all border border-rose-700/50 bg-rose-800/30 text-rose-500 hover:bg-rose-700/40"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() =>
+                              setDetails(
+                                details === ticket.$id ? "" : ticket.$id
+                              )
+                            }
+                            className={`flex items-center px-2 py-1 rounded-lg font-medium text-sm transition-all border  ${
+                              details === ticket.$id
+                                ? "border-gray-700/50 bg-gray-800/30 text-gray-500 hover:bg-gray-700/40"
+                                : "border-blue-700/50 bg-gray-blue/30 text-blue-500 hover:bg-blue-700/40"
+                            }`}
+                          >
+                            {details === ticket.$id
+                              ? "Hide Details"
+                              : "See Details"}
+                          </motion.button>
                         </div>
                       </div>
                     </motion.div>

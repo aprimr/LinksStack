@@ -70,10 +70,10 @@ const TermsAndPrivacy = () => {
           className="flex overflow-x-auto pb-1 scrollbar-hide"
           variants={itemVariants}
         >
-          <div className="inline-flex border-b border-gray-700 bg-gray-800/50 rounded-lg">
+          <div className="inline-flex border-b border-gray-700 bg-gray-800/50 rounded-t-xl">
             <button
               onClick={() => setActiveTab("terms")}
-              className={`px-4 py-2 text-sm sm:text-base font-medium flex items-center gap-2 transition ${
+              className={`px-4 py-2 text-sm sm:text-base font-medium flex items-center gap-2 transition rounded-tl-xl ${
                 activeTab === "terms"
                   ? "text-white border-b-2 border-indigo-500 bg-gray-700/40"
                   : "text-gray-400 hover:text-white"
@@ -84,7 +84,7 @@ const TermsAndPrivacy = () => {
             </button>
             <button
               onClick={() => setActiveTab("privacy")}
-              className={`px-4 py-2 text-sm sm:text-base font-medium flex items-center gap-2 transition ${
+              className={`px-4 py-2 text-sm sm:text-base font-medium flex items-center gap-2 transition rounded-tr-xl ${
                 activeTab === "privacy"
                   ? "text-white border-b-2 border-indigo-500 bg-gray-700/40"
                   : "text-gray-400 hover:text-white"

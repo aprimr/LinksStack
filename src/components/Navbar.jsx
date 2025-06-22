@@ -56,7 +56,7 @@ function Navbar() {
         { to: "/terms-and-privacy", label: "Terms And Privacy" },
       ]
     : [
-        { to: "/analytics", label: "Analytics" },
+        { to: "/dashboard", label: "Dashboard" },
         { to: "/settings", label: "Settings" },
       ];
 
@@ -76,7 +76,7 @@ function Navbar() {
         <nav className="hidden md:flex gap-6">
           {!homeRoute && user && (
             <NavLink
-              to="/dashboard"
+              to="/home"
               className={({ isActive }) =>
                 `text-sm font-medium font-poppins transition-colors ${
                   isActive
@@ -85,7 +85,7 @@ function Navbar() {
                 }`
               }
             >
-              Dashboard
+              Home
             </NavLink>
           )}
           {commonLinks.map(({ to, label }) => (
@@ -149,13 +149,11 @@ function Navbar() {
             </NavLink>
           ) : isPremium ? (
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/home")}
               className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/10 bg-sky-600/20 text-sky-500 hover:bg-sky-900/30 transition-all font-poppins"
             >
               <LayoutDashboard className="h-5 w-5" />
-              <span className="text-sm lg:text-base font-medium">
-                Dashboard
-              </span>
+              <span className="text-sm lg:text-base font-medium">Home</span>
             </button>
           ) : (
             <button
