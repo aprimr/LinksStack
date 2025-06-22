@@ -155,7 +155,7 @@ const Contact = () => {
                   >
                     linksstack@gmail.com
                   </a>
-                  <p className="text-gray-400 mt-1 text-sm">
+                  <p className="bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 bg-clip-text text-transparent mt-1 text-sm font-poppins">
                     We typically respond within 24 hours
                   </p>
                 </div>
@@ -201,10 +201,10 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg sm:text-xl text-white">
-                    Open Source Project
+                    Report a Bug
                   </h3>
-                  <p className="text-gray-400 mt-1 text-sm">
-                    LinksStack is open source and welcomes contributions!
+                  <p className="bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 bg-clip-text text-transparent mt-1 text-sm font-poppins">
+                    Found a bug? Open an issue on our GitHub repository.
                   </p>
                 </div>
               </div>
@@ -284,7 +284,7 @@ const Contact = () => {
                     {faq.question}
                   </h3>
                 </div>
-                <p className="text-gray-300 text-xs sm:text-sm pl-10">
+                <p className="text-gray-400 text-xs sm:text-sm pl-10 font-poppins">
                   {faq.answer}
                 </p>
               </motion.a>
