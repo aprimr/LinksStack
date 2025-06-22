@@ -15,6 +15,7 @@ import Upgrade from "./pages/Upgrade";
 import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
 import VerifyAccount from "./pages/VerifyAccount";
+import HelpCenter from "./pages/HelpCenter";
 
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
@@ -72,8 +73,14 @@ function App() {
           }
         />
 
-        {/* test */}
-        {/* <Route path="/test" element={<Test />} /> */}
+        <Route
+          path="/help"
+          element={
+            <PrivateRoute>
+              <HelpCenter />
+            </PrivateRoute>
+          }
+        />
 
         {/* Not Found */}
         <Route path="*" element={<NotFound />} />

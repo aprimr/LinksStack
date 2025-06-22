@@ -174,7 +174,7 @@ const Profile = () => {
               >
                 <Layers2 className="w-5 h-5" />
                 <span className="truncate max-w-xs">{`${
-                  import.meta.env.VITE_FRONTEND_URL
+                  import.meta.env.VITE_FRONTEND_URL.split("//")[1]
                 }/${userDetails?.profileSlug}`}</span>
               </NavLink>
 
@@ -279,7 +279,7 @@ const Profile = () => {
                   <div className=" inline-flex  items-center gap-2 text-sm text-gray-300 bg-gray-800/50 px-3 py-1.5 rounded-full">
                     <Layers2 className="w-4 h-4" />
                     <span className="truncate">
-                      {`${import.meta.env.VITE_FRONTEND_URL}/${
+                      {`${import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/${
                         userDetails?.profileSlug
                       }`}
                     </span>

@@ -127,12 +127,14 @@ function Navbar() {
                 PRO Support
               </NavLink>
             ) : (
-              <NavLink
-                to="/help"
-                className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
-              >
-                Help Center
-              </NavLink>
+              user && (
+                <NavLink
+                  to="/help"
+                  className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
+                >
+                  Help Center
+                </NavLink>
+              )
             ))}
         </nav>
 
@@ -254,12 +256,14 @@ function Navbar() {
                 PRO Support
               </NavLink>
             ) : (
-              <NavLink
-                to="/help"
-                className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
-              >
-                Help Center
-              </NavLink>
+              user && (
+                <NavLink
+                  to="/help"
+                  className={`text-gray-200 hover:text-gray-400 text-sm font-medium transition-colors duration-300 font-poppins`}
+                >
+                  Help Center
+                </NavLink>
+              )
             ))}
         </nav>
       )}
