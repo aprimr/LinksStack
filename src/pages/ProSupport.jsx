@@ -29,6 +29,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const ProSupport = () => {
   const user = useAuthStore((state) => state.user);
@@ -47,8 +48,12 @@ const ProSupport = () => {
 
   const [subject, setSubject] = useState("");
   const [ticketTag, setTicketTag] = useState(null);
+  const [subjectLength, setSubjectLength] = useState(0);
+  const [messageLength, setMessageLength] = useState(0);
   const [message, setMessage] = useState("");
   const availableTags = ["Bug", "Link", "Account", "Billing", "Other"];
+
+  const [recaptchaValue, setRecaptchaValue] = useState(null);
 
   useEffect(() => {
     if (!isPremium) {
@@ -66,8 +71,20 @@ const ProSupport = () => {
     e.preventDefault();
     setLoading("creating-ticket");
 
+    if (!recaptchaValue) {
+      toast.error("Please verify that you are not a robot");
+      setLoading("");
+      return;
+    }
+
     if (!subject || !ticketTag || !message) {
       toast.error("Please fill in all fields");
+      setLoading("");
+      return;
+    }
+
+    if (subjectLength > 100 || messageLength > 1000) {
+      toast.error("Subject or message length exceeded");
       setLoading("");
       return;
     }
@@ -86,6 +103,9 @@ const ProSupport = () => {
     setMessage("");
     setTicketTag(null);
     setIsSubmitted(true);
+    setSubjectLength(0);
+    setMessageLength(0);
+    setRecaptchaValue(null);
   };
 
   const handleDelete = async (id) => {
@@ -229,6 +249,7 @@ const ProSupport = () => {
             onClick={() => {
               setActiveTab("raise");
               setIsSubmitted(false);
+              setRecaptchaValue(null);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border backdrop-blur-sm ${
               activeTab === "raise"
@@ -245,6 +266,7 @@ const ProSupport = () => {
             onClick={() => {
               setActiveTab("view");
               setIsSubmitted(false);
+              setRecaptchaValue(null);
               fetchTickets(user.$id);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border backdrop-blur-sm ${
@@ -343,10 +365,22 @@ const ProSupport = () => {
                     <input
                       type="text"
                       value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-300 placeholder:font-poppins placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+                      onChange={(e) => {
+                        setSubject(e.target.value);
+                        setSubjectLength(e.target.value.length);
+                      }}
+                      className="w-full px-4 py-3 mb-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-300 placeholder:font-poppins placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                       placeholder="Briefly describe your issue"
                     />
+                    <p
+                      className={`text-xs text-right ${
+                        subjectLength > 100 ? "text-red-500" : "text-gray-400"
+                      } 
+                      ${subjectLength === 0 ? "text-gray-600" : ""}
+                      font-poppins`}
+                    >
+                      {subjectLength}/100
+                    </p>
                   </div>
 
                   <div>
@@ -380,24 +414,45 @@ const ProSupport = () => {
                     <textarea
                       rows={5}
                       value={message}
-                      onChange={(e) => setMessage(e.target.value)}
+                      onChange={(e) => {
+                        setMessage(e.target.value);
+                        setMessageLength(e.target.value.length);
+                      }}
                       className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-300 placeholder:font-poppins placeholder:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
                       placeholder="Please provide detailed information about your request..."
                     />
+                    <p
+                      className={`text-xs text-right ${
+                        messageLength > 1000 ? "text-red-500" : "text-gray-400"
+                      } 
+                      ${messageLength === 0 ? "text-gray-600" : ""}
+                      font-poppins`}
+                    >
+                      {messageLength}/1000
+                    </p>
                   </div>
 
-                  <div className="pt-2 flex justify-between">
-                    <button
-                      type="submit"
-                      disabled={loading === "creating-ticket"}
-                      className="px-7 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 font-poppins"
-                    >
-                      {loading === "creating-ticket" ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        "Create Ticket"
-                      )}
-                    </button>
+                  <div className=" flex justify-between items-end flex-wrap gap-4">
+                    <ReCAPTCHA
+                      onChange={(value) => setRecaptchaValue(value)}
+                      sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    />
+
+                    <div className="flex flex-col gap-1">
+                      <button
+                        type="submit"
+                        disabled={loading === "creating-ticket"}
+                        className={`min-w-[10rem] px-7 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 font-poppins ${
+                          !recaptchaValue && "opacity-50"
+                        } disabled:cursor-not-allowed`}
+                      >
+                        {loading === "creating-ticket" ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          "Create Ticket"
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -483,14 +538,18 @@ const ProSupport = () => {
                       <div className="flex flex-col gap-2 p-6 pt-12">
                         <h3
                           className={`text-xl font-semibold font-poppins text-white ${
-                            details !== ticket.$id ? "line-clamp-2" : ""
+                            details !== ticket.$id
+                              ? "line-clamp-2"
+                              : "break-words"
                           }`}
                         >
                           {ticket.subject}
                         </h3>
                         <p
                           className={`text-sm font-medium text-gray-400 font-poppins ${
-                            details !== ticket.$id ? "line-clamp-4" : ""
+                            details !== ticket.$id
+                              ? "line-clamp-4"
+                              : "break-words"
                           }`}
                         >
                           {ticket.message}
