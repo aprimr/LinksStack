@@ -3,14 +3,8 @@ import { motion } from "framer-motion";
 import {
   Edit2,
   Settings,
-  Link as LinkIcon,
   Calendar,
   Mail,
-  User,
-  TrendingUp,
-  ArrowUpRight,
-  Plus,
-  Sparkles,
   Crown,
   Globe,
   BarChart2,
@@ -19,6 +13,7 @@ import {
   LogOut,
   Loader2,
   Trash,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NavLink } from "react-router-dom";
@@ -302,63 +297,6 @@ const Profile = () => {
           </div>
         </motion.section>
 
-        {/* Stats Cards Section */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-12"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-            {[
-              {
-                label: "Total Links",
-                value: "24",
-                icon: LinkIcon,
-                trend: "↑ 12%",
-              },
-              {
-                label: "Link Views",
-                value: "1.2K",
-                icon: User,
-                trend: "↑ 24%",
-              },
-              {
-                label: "Click Rate",
-                value: "68%",
-                icon: TrendingUp,
-                trend: "↑ 8%",
-              },
-              { label: "Top Link", value: "Portfolio", icon: ArrowUpRight },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ y: -5 }}
-                className="bg-gray-800/50 hover:bg-gray-700/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-700/30 transition-all duration-300"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-400">
-                      {stat.label}
-                    </p>
-                    <p className="text-xl sm:text-2xl font-bold mt-1">
-                      {stat.value}
-                    </p>
-                    {stat.trend && (
-                      <span className="text-xs text-green-400 mt-1">
-                        {stat.trend}
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10">
-                    <stat.icon className="w-5 h-5 text-purple-400" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
         {/* Premium Features Showcase */}
         {!isPremium && (
           <motion.section
@@ -380,7 +318,7 @@ const Profile = () => {
                       { icon: Globe, text: "Custom Domains" },
                       { icon: BarChart2, text: "Advanced Analytics" },
                       { icon: Palette, text: "Premium Themes" },
-                      { icon: Sparkles, text: "Exclusive Badges" },
+                      { icon: Zap, text: "Dedicated Support" },
                     ].map((feature, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="p-2 rounded-full bg-amber-500/10 text-amber-400">
@@ -405,69 +343,6 @@ const Profile = () => {
             </div>
           </motion.section>
         )}
-
-        {/* Links Section */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mb-12"
-        >
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-indigo-500">
-              Your Links
-            </h2>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-indigo-500 rounded-full text-sm font-medium hover:brightness-110 transition-all w-full sm:w-auto justify-center">
-                <Plus className="w-4 h-4" />
-                Add New Link
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-full text-sm font-medium transition-all w-full sm:w-auto justify-center">
-                <LinkIcon className="w-4 h-4" />
-                View Public Profile
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {[1, 2, 3].map((link) => (
-              <motion.div
-                key={link}
-                whileHover={{ scale: 1.01 }}
-                className="group bg-gray-800/50 hover:bg-gray-700/60 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30 transition-all duration-300"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-gray-700 group-hover:bg-gray-600 p-3 rounded-lg transition-colors">
-                      <LinkIcon className="w-5 h-5 text-purple-400" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <h3 className="font-medium truncate">
-                        Portfolio Website
-                      </h3>
-                      <p className="text-sm text-gray-400 truncate">
-                        https://myportfolio.com
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 sm:ml-4">
-                    <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded whitespace-nowrap">
-                      Active
-                    </span>
-                    <div className="flex gap-2">
-                      <button className="text-gray-400 hover:text-white p-1">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button className="text-gray-400 hover:text-white p-1">
-                        <ArrowUpRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
       </div>
     </div>
   );

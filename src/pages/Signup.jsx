@@ -20,7 +20,7 @@ const Signup = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      navigate("/home");
     }
   }, [user, loading]);
 

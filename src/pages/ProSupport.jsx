@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import formatDateAndTime from "../utils/formatDateAndTime";
 import useAuthStore from "../store/authStore";
 import useTicketStore from "../store/ticketStore";
 import {
@@ -36,6 +37,7 @@ const ProSupport = () => {
   const fetchTickets = useTicketStore((state) => state.fetchTickets);
   const tickets = useTicketStore((state) => state.tickets);
   const addTicket = useTicketStore((state) => state.addTicket);
+  const deleteTicket = useTicketStore((state) => state.deleteTicket);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("raise");
@@ -53,6 +55,12 @@ const ProSupport = () => {
       navigate(-1);
     }
   }, [isPremium, navigate]);
+
+  useEffect(() => {
+    if (activeTab === "view" && user?.$id) {
+      fetchTickets(user.$id);
+    }
+  }, [activeTab, user?.$id, fetchTickets]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,6 +88,18 @@ const ProSupport = () => {
     setIsSubmitted(true);
   };
 
+  const handleDelete = async (id) => {
+    setLoading(id);
+    try {
+      await deleteTicket(id);
+      fetchTickets();
+    } catch (error) {
+      console.error("Error deleting ticket:", error);
+    } finally {
+      setLoading("");
+    }
+  };
+
   const getStatusStyles = (status) => {
     switch (status) {
       case "new":
@@ -87,56 +107,56 @@ const ProSupport = () => {
           bg: "bg-blue-900/20",
           border: "border-blue-700/40",
           text: "text-blue-400",
-          icon: <Clock className="h-[14px] w-[14px]" />,
+          icon: <Clock className="h-[10px] w-[10px]" />,
         };
       case "in-progress":
         return {
           bg: "bg-amber-900/20",
           border: "border-amber-700/40",
           text: "text-amber-400",
-          icon: <AlertCircle className="h-[14px] w-[14px]" />,
+          icon: <AlertCircle className="h-[10px] w-[10px]" />,
         };
       case "on-hold":
         return {
           bg: "bg-orange-900/20",
           border: "border-orange-700/40",
           text: "text-orange-400",
-          icon: <PauseCircle className="h-[14px] w-[14px]" />,
+          icon: <PauseCircle className="h-[10px] w-[10px]" />,
         };
       case "resolved":
         return {
           bg: "bg-green-900/20",
           border: "border-green-700/40",
           text: "text-green-400",
-          icon: <CheckCircle2 className="h-[14px] w-[14px]" />,
+          icon: <CheckCircle2 className="h-[10px] w-[10px]" />,
         };
       case "rejected":
         return {
           bg: "bg-red-900/20",
           border: "border-red-700/40",
           text: "text-red-400",
-          icon: <XCircle className="h-[14px] w-[14px]" />,
+          icon: <XCircle className="h-[10px] w-[10px]" />,
         };
       case "closed":
         return {
           bg: "bg-gray-800/20",
           border: "border-gray-600/40",
           text: "text-gray-300",
-          icon: <Archive className="h-[14px] w-[14px]" />,
+          icon: <Archive className="h-[10px] w-[10px]" />,
         };
       case "cancelled":
         return {
           bg: "bg-zinc-800/20",
           border: "border-zinc-600/40",
           text: "text-zinc-400",
-          icon: <Ban className="h-[14px] w-[14px]" />,
+          icon: <Ban className="h-[10px] w-[10px]" />,
         };
       default:
         return {
           bg: "bg-gray-800/30",
           border: "border-gray-700/40",
           text: "text-gray-400",
-          icon: <Clock className="h-[14px] w-[14px]" />,
+          icon: <Clock className="h-[10px] w-[10px]" />,
         };
     }
   };
@@ -226,7 +246,6 @@ const ProSupport = () => {
               setActiveTab("view");
               setIsSubmitted(false);
               fetchTickets(user.$id);
-              console.log(tickets);
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 border backdrop-blur-sm ${
               activeTab === "view"
@@ -430,7 +449,7 @@ const ProSupport = () => {
                 </motion.button>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 ">
+              <div className="columns-1 lg:columns-2 gap-4 space-y-4">
                 {tickets.map((ticket) => {
                   const statusStyles = getStatusStyles(ticket.ticketStatus);
                   return (
@@ -438,55 +457,54 @@ const ProSupport = () => {
                       key={ticket.$id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`relative p-5 rounded-2xl border ${statusStyles.border} ${statusStyles.bg} backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow`}
+                      className={`break-inside-avoid rounded-2xl border ${statusStyles.border} ${statusStyles.bg} backdrop-blur-sm shadow-md hover:shadow-xl transition-shadow duration-300`}
                     >
                       {/* Status Badge */}
                       <div className="absolute top-0 right-0">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-bl-xl rounded-tr-xl text-[11px] font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} uppercase`}
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-bl-xl rounded-tr-xl text-[10px] font-semibold tracking-wide ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} uppercase`}
                         >
                           {statusStyles.icon}
                           {ticket.ticketStatus}
                         </span>
                       </div>
-                      {/* Date */}
+
+                      {/* Date Badge */}
                       <div className="absolute top-0 left-0">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-br-xl rounded-tl-xl text-[11px] font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} uppercase`}
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-br-xl rounded-tl-xl text-[10px] font-medium tracking-wide ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}
                         >
-                          <Calendar className="h-[14px] w-[14px]" />
-                          {ticket.$createdAt.split("T")[0]}
+                          <Calendar className="h-3 w-3" />
+                          {formatDateAndTime(ticket.$createdAt)}
                         </span>
                       </div>
 
                       {/* Ticket Info */}
-                      <div className="flex flex-col gap-1 mt-3">
-                        {/* Subject */}
+                      <div className="flex flex-col gap-2 p-6 pt-12">
                         <h3
-                          className={`text-lg sm:text-xl font-semibold font-poppins ${
-                            details !== ticket.$id ? "line-clamp-1" : ""
+                          className={`text-xl font-semibold font-poppins text-white ${
+                            details !== ticket.$id ? "line-clamp-2" : ""
                           }`}
                         >
                           {ticket.subject}
                         </h3>
-
-                        {/* Message */}
                         <p
-                          className={`text-sm sm:text-lg font-semibold text-gray-400 font-poppins ${
-                            details !== ticket.$id ? "line-clamp-3" : ``
+                          className={`text-sm font-medium text-gray-400 font-poppins ${
+                            details !== ticket.$id ? "line-clamp-4" : ""
                           }`}
                         >
-                          - {ticket.message}
+                          {ticket.message}
                         </p>
 
+                        {/* Admin Response */}
                         {details === ticket.$id && (
-                          <div className="mt-3 bg-gray-800/30 border border-gray-700/50 p-3 rounded-xl text-gray-200 text-sm space-y-2 mb-1">
-                            <div className="flex items-center gap-2 font-semibold text-emerald-400 text-xs uppercase tracking-wide">
+                          <div className="mt-4 bg-gray-800/40 border border-gray-700 p-4 rounded-xl text-gray-200 text-sm space-y-2">
+                            <div className="flex items-center gap-1 font-semibold text-emerald-400 text-xs font-poppins uppercase">
                               <MessageSquare className="h-4 w-4" />
                               Admin Response
                             </div>
                             {ticket.response ? (
-                              <p className="text-gray-300 leading-relaxed">
+                              <p className="leading-relaxed text-xs font-poppins">
                                 {ticket.response}
                               </p>
                             ) : (
@@ -499,38 +517,53 @@ const ProSupport = () => {
                       </div>
 
                       {/* Footer */}
-                      <div className="flex flex-col w-full gap-3 mt-2 pt-3 border-t border-gray-700/40">
-                        {/* Ticket ID and Tag */}
-                        <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-2">
-                          {/* Ticket ID */}
+                      <div
+                        className={`flex flex-col w-full gap-4 p-6 -mb-3 pt-0 border-t ${statusStyles.border}`}
+                      >
+                        {/* Ticket ID & Tag */}
+                        <div className="flex flex-row justify-between items-start sm:items-center mt-3 gap-3">
                           <div
-                            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}
+                            className={`flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}
                           >
-                            <Ticket className="h-3.5 w-3.5" />
-                            <span className="truncate max-w-[180px] sm:max-w-[160px]">
+                            <Ticket className="h-4 w-4" />
+                            <span className="truncate max-w-[120px] sm:max-w-[180px]">
                               {ticket.$id}
                             </span>
                           </div>
-
-                          {/* Tag */}
                           <span
-                            className={`px-2.5 py-1 rounded-md text-xs font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border} whitespace-nowrap`}
+                            className={`px-3 py-1 rounded-md text-xs font-semibold ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}
                           >
                             {ticket.ticketTag}
                           </span>
                         </div>
 
-                        {/* Buttons */}
-                        <div className="flex justify-between sm:justify-end items-center gap-2">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => setActiveTab("view")}
-                            className="flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-sm transition-all border border-rose-700/50 bg-rose-800/30 text-rose-500 hover:bg-rose-700/40"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete
-                          </motion.button>
+                        {/* Action Buttons */}
+                        <div className="flex justify-end items-center gap-2">
+                          {ticket.ticketStatus === "new" && (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleDelete(ticket.$id)}
+                              disabled={loading === ticket.$id}
+                              className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium text-rose-500 bg-rose-900/20 border border-rose-700/50 hover:bg-rose-700/30 transition ${
+                                loading === ticket.$id
+                                  ? "cursor-not-allowed brightness-75"
+                                  : ""
+                              }`}
+                            >
+                              {loading === ticket.$id ? (
+                                <>
+                                  <Loader2 className="animate-spin h-4 w-4" />
+                                  Deleting
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="h-4 w-4" />
+                                  Delete
+                                </>
+                              )}
+                            </motion.button>
+                          )}
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.98 }}
@@ -539,10 +572,10 @@ const ProSupport = () => {
                                 details === ticket.$id ? "" : ticket.$id
                               )
                             }
-                            className={`flex items-center px-2 py-1 rounded-lg font-medium text-sm transition-all border  ${
+                            className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium transition border ${
                               details === ticket.$id
-                                ? "border-gray-700/50 bg-gray-800/30 text-gray-500 hover:bg-gray-700/40"
-                                : "border-blue-700/50 bg-gray-blue/30 text-blue-500 hover:bg-blue-700/40"
+                                ? "bg-gray-800/40 text-gray-400 border-gray-700 hover:bg-gray-700/40"
+                                : "bg-blue-900/20 text-blue-400 border-blue-700 hover:bg-blue-700/30"
                             }`}
                           >
                             {details === ticket.$id

@@ -17,7 +17,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      navigate("/home");
     }
   }, [user, loading]);
 
@@ -36,7 +36,7 @@ const Login = () => {
     try {
       const res = await login(email, password);
       if (res.success) {
-        navigate("/dashboard");
+        navigate("/home");
         setLoadingButton(false);
       } else {
         toast.error(res.message);

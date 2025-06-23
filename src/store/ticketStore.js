@@ -9,7 +9,7 @@ const useTicketStore = create((set) => ({
     if (!userId) return;
     try {
       const response = await db.tickets.list([Query.equal("userId", [userId])]);
-      set({ tickets: response.documents });
+      set({ tickets: response.documents.reverse() });
     } catch (error) {
       console.error("Error fetching tickets:", error);
     }
@@ -17,6 +17,7 @@ const useTicketStore = create((set) => ({
 
   addTicket: async (userId, email, subject, ticketTag, message) => {
     try {
+      console.log(`subject: ${subject}, ${typeof subject}`);
       const response = await db.tickets.create(
         {
           userId,
@@ -40,6 +41,15 @@ const useTicketStore = create((set) => ({
       set((state) => ({ tickets: [response, ...state.tickets] }));
     } catch (error) {
       console.error("Error adding ticket:", error);
+    }
+  },
+
+  deleteTicket: async (id) => {
+    try {
+      await db.tickets.delete(id);
+      set((state) => ({ tickets: state.tickets.filter((t) => t.$id !== id) }));
+    } catch (error) {
+      console.log(error);
     }
   },
 }));
