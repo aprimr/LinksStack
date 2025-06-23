@@ -67,6 +67,11 @@ const ProSupport = () => {
     }
   }, [activeTab, user?.$id, fetchTickets]);
 
+  useEffect(() => {
+    console.log("𝑅eCAPTCHA key:", import.meta.env.VITE_RECAPTCHA_SITE_KEY);
+    console.log("Origin:", window.location.origin);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading("creating-ticket");
@@ -333,7 +338,7 @@ const ProSupport = () => {
               <div className="p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-4 mb-8">
                   <div className="h-12 w-12 bg-amber-500/10 rounded-lg flex items-center justify-center border border-amber-500/20">
-                    <Mail className="h-6 w-6 text-amber-400" />
+                    <TicketPlus className="h-6 w-6 text-amber-400" />
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold text-white">

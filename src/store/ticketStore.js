@@ -17,7 +17,6 @@ const useTicketStore = create((set) => ({
 
   addTicket: async (userId, email, subject, ticketTag, message) => {
     try {
-      console.log(`subject: ${subject}, ${typeof subject}`);
       const response = await db.tickets.create(
         {
           userId,
