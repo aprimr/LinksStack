@@ -67,11 +67,6 @@ const ProSupport = () => {
     }
   }, [activeTab, user?.$id, fetchTickets]);
 
-  useEffect(() => {
-    console.log("𝑅eCAPTCHA key:", import.meta.env.VITE_RECAPTCHA_SITE_KEY);
-    console.log("Origin:", window.location.origin);
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading("creating-ticket");
