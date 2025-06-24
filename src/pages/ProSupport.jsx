@@ -198,7 +198,7 @@ const ProSupport = () => {
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-amber-800">
             Priority Support for{" "}
-            <span className="font-black bg-clip-text text-transparent bg-gradient-to-bl from-amber-400 via-rose-500 to-fuchsia-600">
+            <span className="font-black bg-clip-text text-transparent bg-gradient-to-bl from-amber-400 via-rose-500 to-fuchsia-600 brightness-115">
               PRO
             </span>{" "}
             Users

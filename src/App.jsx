@@ -21,6 +21,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TermsAndPrivacy from "./pages/TermsAndPrivacy";
 import ProSupport from "./pages/ProSupport";
+import Settings from "./pages/Settings";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -79,6 +80,16 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/upgrade"
           element={
@@ -89,19 +100,19 @@ function App() {
         />
 
         <Route
-          path="/help"
+          path="/pro-support"
           element={
             <PrivateRoute>
-              <HelpCenter />
+              <ProSupport />
             </PrivateRoute>
           }
         />
 
         <Route
-          path="/pro-support"
+          path="/help"
           element={
             <PrivateRoute>
-              <ProSupport />
+              <HelpCenter />
             </PrivateRoute>
           }
         />

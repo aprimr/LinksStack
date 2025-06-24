@@ -16,12 +16,14 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import ProBadge from "../components/ProBadge";
 import useAuthStore from "../store/authStore";
 import LinksStackLogo from "../assets/logo.png";
+import { useEffect } from "react";
 
 const Profile = () => {
+  const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
   const userDetails = useAuthStore((state) => state.userDetails);
   const isPremium = useAuthStore((state) => state.isPremium);
@@ -32,6 +34,12 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState(userDetails?.avatarUrl || null);
   const [profilePicLoading, setProfilePicLoading] = useState(false);
   const [expandBio, setExpandBio] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkSession();
+  }, []);
 
   const handleImageUpload = async (e) => {
     setProfilePicLoading(true);
@@ -140,7 +148,10 @@ const Profile = () => {
                 </h1>
                 <div className="absolute top-0 right-0 flex flex-col gap-3">
                   <div className="flex gap-2">
-                    <button className="text-gray-300 hover:text-white transition-colors p-2 bg-gray-800/50 hover:bg-gray-700/60 rounded-full backdrop-blur-sm border border-gray-700/30">
+                    <button
+                      onClick={() => navigate("/settings")}
+                      className="text-gray-300 hover:text-white transition-colors p-2 bg-gray-800/50 hover:bg-gray-700/60 rounded-full backdrop-blur-sm border border-gray-700/30"
+                    >
                       <Settings className="w-5 h-5" />
                     </button>
                     <button
@@ -250,12 +261,9 @@ const Profile = () => {
                   </p>
                 </div>
 
-                <div className="flex flex-col-reverse items-end gap-2">
+                <div className="flex flex-col items-end gap-2">
                   {isPremium && <ProBadge />}
-                  <div>
-                    <button className="text-gray-300 hover:text-white transition-colors p-2 bg-gray-800/50 hover:bg-gray-700/60 rounded-full backdrop-blur-sm border border-gray-700/30 shadow-sm hover:shadow-md">
-                      <Settings className="w-5 h-5" />
-                    </button>
+                  <div className="flex  items-end gap-2">
                     <button
                       onClick={() => logout()}
                       className="text-gray-300 hover:text-white transition-colors p-2 bg-gray-800/50 hover:bg-gray-700/60 rounded-full backdrop-blur-sm border border-gray-700/30 shadow-sm hover:shadow-md"

@@ -183,7 +183,7 @@ function Navbar() {
         >
           {!homeRoute && user && (
             <NavLink
-              to="/dashboard"
+              to="/home"
               className={({ isActive }) =>
                 `text-sm font-medium font-poppins transition-colors ${
                   isActive
@@ -192,7 +192,7 @@ function Navbar() {
                 }`
               }
             >
-              Dashboard
+              Home
             </NavLink>
           )}
           {commonLinks.map(({ to, label }) => (

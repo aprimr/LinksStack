@@ -31,7 +31,12 @@ const useAuthStore = create((set) => ({
         if (err.code !== 404) console.error("Premium check failed:", err);
       }
 
-      set({ user, userDetails, isPremium, loading: false });
+      set({
+        user,
+        userDetails,
+        isPremium,
+        loading: false,
+      });
       return { success: true };
     } catch (error) {
       set({ user: null, userDetails: null, isPremium: false, loading: false });
@@ -176,20 +181,6 @@ const useAuthStore = create((set) => ({
     } catch (error) {
       console.error("Profile pic deletion failed:", error);
       return { success: false, message: error.message };
-    }
-  },
-
-  // delete account
-  deleteAccount: async () => {
-    try {
-      await account.delete();
-      return { success: true };
-    } catch (error) {
-      console.error("Account deletion failed:", error);
-      return {
-        success: false,
-        message: "An error occurred while deleting the account.",
-      };
     }
   },
 
