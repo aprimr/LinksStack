@@ -6,14 +6,25 @@ import { Query } from "appwrite";
 const useSettingsStore = create((set) => ({
   sessions: [],
 
+  // Get all sessions
   getSessions: async () => {
     try {
       const res = await account.listSessions();
-      set({ sessions: res.sessions });
+      set({ sessions: res.sessions.reverse() });
       return { success: true };
     } catch (error) {
       console.error("Error fetching sessions:", error);
       return { success: false, message: error.message };
+    }
+  },
+
+  // Delete session
+  deletesession: async (sessionId) => {
+    try {
+      await account.deleteSession(sessionId);
+      return { success: true, message: "Session deleted successfully" };
+    } catch (error) {
+      console.log(error);
     }
   },
 

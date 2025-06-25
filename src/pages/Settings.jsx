@@ -95,6 +95,8 @@ const Settings = () => {
     updatePassword,
     getSessions,
     sessions,
+    deletesession,
+    deleteAllSessions,
   } = useSettingsStore();
 
   // Form States
@@ -173,15 +175,53 @@ const Settings = () => {
     }
   };
 
+  const handleEndSession = async (sessionId) => {
+    try {
+      setLoading(sessionId);
+      const res = await deletesession(sessionId);
+
+      if (res?.success) {
+        toast.success("Session deleted successfully");
+        getSessions();
+      } else {
+        toast.error(res?.message || "Failed to delete session");
+      }
+    } catch (error) {
+      console.error("Session delete error:", error);
+      toast.error("Error: " + error?.message || "Something went wrong");
+    } finally {
+      setLoading("");
+    }
+  };
+
+  const handleDeleteAllSessions = async () => {
+    try {
+      setLoading("deleting-sessions");
+      const res = await deleteAllSessions();
+
+      if (res?.success) {
+        toast.success("All sessions deleted successfully");
+        getSessions();
+      } else {
+        toast.error(res?.message || "Failed to delete sessions");
+      }
+    } catch (error) {
+      console.error("Sessions delete error:", error);
+      toast.error("Error: " + error?.message || "Something went wrong");
+    } finally {
+      setLoading("");
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-gray-950 text-gray-100 py-16 pt-[8rem] sm:pt-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-gray-950 text-gray-100 py-16 sm:pt-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-screen-lg mx-auto space-y-8">
         {/* Profile Setting */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 200 }}
-          className="bg-gray-900 rounded-xl shadow-md p-6 border border-gray-800"
+          className="bg-gray-900 rounded-xl shadow-md p-6 mt-14 md:mt-10 border border-gray-800"
         >
           <h2 className="flex items-center text-xl font-semibold mb-6 text-white">
             <User className="mr-2 text-gray-400" size={20} />
@@ -338,38 +378,47 @@ const Settings = () => {
             </div>
 
             {/* Bio */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+            <div className="w-full space-y-2">
+              <label
+                htmlFor="bio"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Bio
               </label>
               <textarea
-                rows={3}
+                id="bio"
                 placeholder="Tell us about yourself..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-500"
+                maxLength={200}
+                className="w-full min-h-[160px] sm:min-h-[100px] resize-none px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               />
-              <p
-                className={`flex justify-end text-sm ${
-                  bio.length > 200 ? "text-red-500" : "text-gray-500"
-                } mt-1`}
-              >
-                {bio.length} / 200
-              </p>
-            </div>
+              <div className="flex justify-between items-center text-sm">
+                <span
+                  className={`${
+                    bio.length > 200 ? "text-red-500" : "text-gray-400"
+                  }`}
+                >
+                  {bio.length} / 200
+                </span>
+              </div>
 
-            <div className="pt-2">
               <button
                 onClick={handleUpdateProfileInfo}
                 disabled={loading === "updating-info" || !name}
-                className="w-fit flex justify-center items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-600/50 transition-colors"
+                className="mt-2 w-fit flex items-center gap-2 px-5 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-blue-600/50 transition-all"
               >
                 {loading === "updating-info" ? (
-                  <Loader2 className="mr-2 animate-spin" />
+                  <>
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    Updating
+                  </>
                 ) : (
-                  <Check className="mr-2" size={16} />
+                  <>
+                    <Check className="w-4 h-4" />
+                    Save Changes
+                  </>
                 )}
-                {loading === "updating-info" ? "Updating" : "Save Changes"}
               </button>
             </div>
           </div>
@@ -516,20 +565,23 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 200 }}
-          className={`bg-gray-900 rounded-xl shadow-md p-6 border border-gray-800 ${
-            isPremium ? "" : "blur-sm pointer-events-none select-none"
-          }`}
+          className={`bg-gray-900 rounded-xl shadow-md p-6 border border-gray-800 
+           
+          `}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="flex items-center text-xl font-semibold text-white">
-              <MonitorSmartphone className="mr-2 text-gray-400" size={20} />
-              Active Sessions
-            </h2>
-            {sessions.length > 1 && (
-              <button className="hidden sm:flex w-fit items-center px-4 py-2 mt-2 bg-gray-950 hover:bg-gray-950/40 rounded-lg text-gray-100 transition-colors">
-                <CircleOff className="mr-2" size={16} /> Clear All Sessions
-              </button>
-            )}
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-gray-800 rounded-lg">
+                <MonitorSmartphone className="text-gray-400" size={20} />
+              </div>
+              <h2 className="text-xl font-semibold text-white">
+                Active Sessions
+              </h2>
+            </div>
+
+            <div className="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-md font-poppins">
+              {sessions.length} active
+            </div>
           </div>
 
           <div className="overflow-x-auto scrollbar-hide">
@@ -551,6 +603,10 @@ const Settings = () => {
                       session.current
                         ? "bg-blue-900/20"
                         : "hover:bg-gray-800/50"
+                    } ${
+                      !session.current && !isPremium
+                        ? "blur-sm pointer-events-none cursor-default select-none opacity-80"
+                        : ""
                     }`}
                   >
                     <td className="py-4 pl-2">
@@ -565,8 +621,8 @@ const Settings = () => {
                           <p className="text-white font-medium mb-1">
                             {session.clientName}
                             {session.current && (
-                              <span className="ml-2 px-2 py-0.5 rounded-full font-medium text-sm border border-blue-500/30 bg-blue-600/20 text-blue-400">
-                                Current
+                              <span className="ml-2 items-center px-2 py-0.5 rounded-full font-medium text-sm border border-blue-500/30 bg-blue-600/20 text-blue-400">
+                                Current Device
                               </span>
                             )}
                           </p>
@@ -611,8 +667,20 @@ const Settings = () => {
                     </td>
 
                     <td className="py-4 pr-2 text-right">
-                      {!session.current && (
-                        <button className="inline-flex items-center px-3 py-1.5 bg-gray-800 hover:bg-red-600 hover:text-white rounded-lg text-red-400 text-sm transition-colors">
+                      {!session.current ? (
+                        <button
+                          onClick={() => handleEndSession(session.$id)}
+                          disabled={loading === session.$id}
+                          className="inline-flex items-center px-3 py-1.5 rounded-lg font-medium border border-rose-500/30 bg-rose-600/20 text-rose-400 hover:bg-rose-800/20 hover:text-rose-500 disabled:border-gray-500/30 disabled:bg-gray-600/20 disabled:text-gray-400 transition-colors"
+                        >
+                          {loading === session.$id ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            "End Session"
+                          )}
+                        </button>
+                      ) : (
+                        <button className="inline-flex items-center px-3 py-1.5 rounded-lg font-medium border border-gray-500/30 bg-gray-600/20 text-gray-400 text-sm pointer-events-none cursor-not-allowed">
                           End Session
                         </button>
                       )}
@@ -621,13 +689,6 @@ const Settings = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          {/* Clear session button */}
-          <div className="flex justify-end">
-            <button className="flex sm:hidden w-fit items-center px-4 py-2 mt-4 bg-gray-950 hover:bg-gray-950/40 rounded-lg text-gray-100 transition-colors">
-              <CircleOff className="mr-2" size={16} /> Clear All Sessions
-            </button>
           </div>
         </motion.div>
 
@@ -641,45 +702,53 @@ const Settings = () => {
             stiffness: 200,
             delay: 0.15,
           }}
-          className="bg-gray-900 rounded-xl shadow-md p-6 border border-gray-800"
+          className="bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-800"
         >
-          <h2 className="flex items-center text-xl font-semibold mb-4 text-white">
-            <Trash2 className="mr-2 text-gray-400" size={20} /> Delete Account
-          </h2>
+          {/* Header */}
+          <div className="flex items-center mb-4">
+            <div className="p-2 bg-gray-800 rounded-lg mr-3">
+              <Trash2 className="text-gray-400" size={20} />
+            </div>
+            <h2 className="text-xl font-semibold text-white">Delete Account</h2>
+          </div>
 
-          <p className="text-sm text-gray-400 mb-4">
-            Permanently delete your account and all associated data. This action
-            cannot be undone.
-          </p>
-
-          <label className="text-xs font-normal text-gray-400 mb-2 block">
-            Type{" "}
-            <strong className="text-red-400/90 font-medium">CONFIRM</strong> to
-            proceed with account deletion.
+          {/* Instruction */}
+          <label className="text-sm text-gray-400 mb-4 block">
+            Type <strong className="text-red-500/80 ">CONFIRM</strong> to
+            permanently delete your account.
           </label>
 
+          {/* Input + Action Row */}
           <div className="flex flex-col md:flex-row md:items-center md:gap-4">
-            <div className="flex-1 mb-2 md:mb-0">
+            {/* Input */}
+            <div className="flex-1 mb-3 md:mb-0">
               <input
                 type="text"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder="CONFIRM"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition"
               />
             </div>
 
+            {/* Delete Button */}
             <button
               disabled={!isConfirmed}
-              className={`mt-2 md:mt-0 w-full md:w-auto flex gap-2 justify-center md:justify-between items-center px-4 py-3 rounded-lg text-red-400 transition-colors ${
+              className={`w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isConfirmed
-                  ? "bg-red-600/10 hover:bg-red-600/20"
-                  : "bg-gray-800 opacity-50 cursor-not-allowed"
+                  ? "bg-red-600/10 hover:bg-red-600/20 text-red-400"
+                  : "bg-gray-800 text-gray-500 opacity-50 cursor-not-allowed"
               }`}
             >
-              <Trash2 className="mr-2" size={16} /> Delete Account
+              <Trash2 size={16} />
+              Delete Account
             </button>
           </div>
+
+          {/* Warning */}
+          <p className="mt-3 text-xs text-rose-500/90 font-poppins">
+            This action is irreversible. Your data will be permanently deleted.
+          </p>
         </motion.div>
       </div>
     </div>

@@ -167,7 +167,7 @@ const Profile = () => {
 
               <p
                 onClick={() => setExpandBio(!expandBio)}
-                className={`text-gray-300 text-base max-w-2xl font-poppins cursor-pointer ${
+                className={`text-gray-300 text-base max-w-2xl font-poppins cursor-pointer break-words ${
                   expandBio ? "" : "line-clamp-3"
                 }`}
               >
@@ -253,10 +253,15 @@ const Profile = () => {
               {/* Name, bio and Actions */}
               <div className="flex-1 flex justify-between items-start">
                 <div>
-                  <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 line-clamp-1">
+                  <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 line-clamp-1 select-none">
                     {user?.name}
                   </h1>
-                  <p className="text-gray-400 text-sm line-clamp-2 font-poppins">
+                  <p
+                    onClick={() => setExpandBio(!expandBio)}
+                    className={`text-gray-400 text-xs font-poppins select-none break-words ${
+                      expandBio ? "" : "line-clamp-2"
+                    }`}
+                  >
                     {userDetails?.bio || "No bio added yet."}
                   </p>
                 </div>
