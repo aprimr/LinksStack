@@ -77,15 +77,6 @@ const formatExpiry = (dateString) => {
   }
 };
 
-// Slug formatter
-const filterSlug = (input) => {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with hyphens
-    .replace(/-+/g, "-") // Collapse multiple hyphens
-    .replace(/^-+|-+$/g, ""); // Trim leading/trailing hyphens
-};
-
 const Settings = () => {
   const navigate = useNavigate();
   const { user, userDetails, isPremium } = useAuthStore();
@@ -282,7 +273,31 @@ const Settings = () => {
                   <input
                     type="text"
                     value={profileSlug}
-                    onChange={(e) => setProfileSlug(filterSlug(e.target.value))}
+                    inputMode="text"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    onKeyDown={(e) => {
+                      const allowed = /^[a-zA-Z0-9-]$/;
+                      const isControl = [
+                        "Backspace",
+                        "Delete",
+                        "ArrowLeft",
+                        "ArrowRight",
+                        "Tab",
+                      ].includes(e.key);
+
+                      if (!allowed.test(e.key) && !isControl) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      setProfileSlug(
+                        e.target.value
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9-]/g, "")
+                      );
+                    }}
                     readOnly={!isPremium}
                     className={`flex-1 px-3 py-2 bg-transparent outline-none ${
                       !isPremium
@@ -324,9 +339,31 @@ const Settings = () => {
                   <input
                     type="text"
                     value={profileSlug}
-                    onChange={(e) =>
-                      setProfileSlug(e.target.value.toLowerCase())
-                    }
+                    inputMode="text"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    onKeyDown={(e) => {
+                      const allowed = /^[a-zA-Z0-9-]$/;
+                      const isControl = [
+                        "Backspace",
+                        "Delete",
+                        "ArrowLeft",
+                        "ArrowRight",
+                        "Tab",
+                      ].includes(e.key);
+
+                      if (!allowed.test(e.key) && !isControl) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      setProfileSlug(
+                        e.target.value
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9-]/g, "")
+                      );
+                    }}
                     readOnly={!isPremium}
                     className={`flex-1 px-3 py-2 bg-transparent outline-none ${
                       !isPremium
@@ -371,7 +408,7 @@ const Settings = () => {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1">
-                    Whitespaces will be automatically replaced with hyphens.
+                    Only alphanumeric characters and hyphens are allowed.
                   </div>
                 )}
               </div>
@@ -579,8 +616,9 @@ const Settings = () => {
               </h2>
             </div>
 
-            <div className="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-md font-poppins">
-              {sessions.length} active
+            <div className="flex justify-center items-center px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-md font-poppins">
+              <div className="w-3 h-3 mr-2 bg-green-400 rounded-full inline-block animate-pulse" />
+              {sessions.length} {sessions.length === 1 ? "Session" : "Sessions"}
             </div>
           </div>
 
