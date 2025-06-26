@@ -8,7 +8,7 @@ function Loading() {
       <Loader2 className="animate-spin text-white h-24 w-24 mb-6" />
 
       {/* App Name at bottom */}
-      <h1 className="absolute bottom-6 w-full text-center text-2xl font-medium sm:font-semibold">
+      <h1 className="absolute bottom-6 w-full text-center text-2xl font-medium">
         <Layers2 className="inline-block mr-2 h-7 w-7 font-inter" />
         LinksStack
       </h1>

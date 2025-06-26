@@ -79,7 +79,12 @@ const formatExpiry = (dateString) => {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, userDetails, isPremium } = useAuthStore();
+  const {
+    checkSession,
+    user,
+    userDetails,
+    isPremium,
+  } = useAuthStore();
   const {
     updateProfileSlug,
     updateProfileInfo,
@@ -105,11 +110,16 @@ const Settings = () => {
     getSessions();
   }, []);
 
+  useEffect(() => {
+    checkSession();
+  }, [loading]);
+
   const handleUpdateProfileInfo = async () => {
     try {
       setLoading("updating-info");
       const res = await updateProfileInfo(userDetails.$id, { name, bio });
       if (res?.success) toast.success("Profile updated successfully");
+      fe;
     } catch (error) {
       console.error(error);
     }
@@ -617,7 +627,6 @@ const Settings = () => {
             </div>
 
             <div className="flex justify-center items-center px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-md font-poppins">
-              <div className="w-3 h-3 mr-2 bg-green-400 rounded-full inline-block animate-pulse" />
               {sessions.length} {sessions.length === 1 ? "Session" : "Sessions"}
             </div>
           </div>

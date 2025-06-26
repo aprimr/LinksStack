@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
   CheckCircle,
@@ -7,27 +7,78 @@ import {
   ShieldCheck,
   X,
   Flame,
+  Loader2,
+  Key,
+  ChevronUp,
+  ChevronDown,
+  KeyRound,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import { functions } from "../appwrite/config";
 import { toast } from "sonner";
 import Esewa from "../assets/esewa.png";
 import ImePay from "../assets/imepay.png";
 import Khalti from "../assets/khalti.png";
 
 function Upgrade() {
+  const user = useAuthStore((state) => state.user);
   const isPremium = useAuthStore((state) => state.isPremium);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [loadingButton, setLoadingButton] = useState(null);
+  const [showTestCredentials, setShowTestCredentials] = useState(false);
+  const [loadingButton, setLoadingButton] = useState();
 
-  const handlePayWithEsewa = () => {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (showPaymentModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showPaymentModal]);
+
+  const handlePayWithEsewa = async () => {
     try {
       setLoadingButton("esewa");
-      toast.info("Esewa payment is not available yet.");
-      setLoadingButton(null);
-    } catch (error) {
-      console.log("Payment error:", error);
+      const result = await functions.createExecution(
+        import.meta.env.VITE_ESEWA_PAYMENT_GATEWAY_FUNCTION_ID,
+        JSON.stringify({ userId: user.$id })
+      );
+
+      if (result.responseStatusCode !== 200) {
+        toast.error("Failed to initiate eSewa payment.");
+        return;
+      }
+
+      const parsed = JSON.parse(result.responseBody);
+      if (parsed.error) {
+        toast.error("Server error.");
+      } else {
+        const { esewaUrl, payload } = parsed;
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = esewaUrl;
+
+        Object.entries(payload).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        setLoadingButton(null);
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
     }
   };
 
@@ -48,6 +99,14 @@ function Upgrade() {
       setLoadingButton(null);
     } catch (error) {
       console.log("Payment error:", error);
+    }
+  };
+
+  // Function to handle horizontal scrolling
+  const handleWheel = (e) => {
+    if (scrollRef.current) {
+      e.preventDefault();
+      scrollRef.current.scrollLeft += e.deltaY;
     }
   };
 
@@ -138,7 +197,7 @@ function Upgrade() {
                 <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-rose-500 to-fuchsia-600">
                   Pro
                 </h3>
-                <p className="bg-clip-text text-transparent bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700 text-sm">
+                <p className="bg-clip-text text-transparent bg-gradient-to-r from-gray-200 via-gray-300 to-gray-500 text-sm font-poppins">
                   Never Expires
                 </p>
               </div>
@@ -240,13 +299,14 @@ function Upgrade() {
           </motion.div>
         </motion.div>
       </div>
+
       {/* Select payment method */}
       {showPaymentModal && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
         >
           <motion.div
             initial={{ y: 20, scale: 0.98 }}
@@ -279,28 +339,56 @@ function Upgrade() {
 
             {/* Payment Methods */}
             <div className="space-y-4 mb-8">
+              {/* Esewa Button */}
+              <motion.button
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={loadingButton === "esewa"}
+                onClick={handlePayWithEsewa}
+                className={`w-full flex items-center justify-between bg-gradient-to-l disabled:from-gray-800 disabled:to-gray-950 from-green-500 to-gray-900 px-4 py-1 rounded-xl shadow-lg`}
+              >
+                <div className="flex items-center gap-4">
+                  {loadingButton === "esewa" ? (
+                    <Loader2 className="animate-spin text-white h-7 w-7 my-2.5" />
+                  ) : (
+                    <img
+                      src={Esewa}
+                      alt="Esewa"
+                      className="h-12 w-auto"
+                      loading="lazy"
+                    />
+                  )}
+                  <span className="text-white flex justify-center items-center gap-2 font-medium text-lg font-poppins">
+                    {loadingButton === "esewa"
+                      ? "Redirecting to esewa"
+                      : "Pay with Esewa"}
+                  </span>
+                </div>
+                <Zap className="text-white/90 w-5 h-5" />
+              </motion.button>
+
               {/* Khalti Button */}
               <motion.button
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                disabled={loadingButton != null}
+                disabled={loadingButton === "khalti"}
                 onClick={handlePayWithKhalti}
-                className={`w-full flex items-center justify-between bg-gradient-to-l ${
-                  loadingButton === "khalti"
-                    ? "from-gray-800 to-gray-950"
-                    : "from-purple-600  to-gray-900 over:shadow-green-500/20"
-                } px-4 py-1 rounded-xl shadow-lg `}
+                className={`w-full flex items-center justify-between bg-gradient-to-l disabled:from-gray-800 disabled:to-gray-950 from-purple-600 to-gray-900 px-4 py-1 rounded-xl shadow-lg`}
               >
                 <div className="flex items-center gap-4">
-                  <img
-                    src={Khalti}
-                    alt="Khalti"
-                    className="h-12 w-auto"
-                    loading="lazy"
-                  />
-                  <span className="text-white font-medium text-lg font-poppins">
+                  {loadingButton === "khalti" ? (
+                    <Loader2 className="animate-spin text-white h-7 w-7 my-2.5" />
+                  ) : (
+                    <img
+                      src={Khalti}
+                      alt="Khalti"
+                      className="h-12 w-auto"
+                      loading="lazy"
+                    />
+                  )}
+                  <span className="text-white flex justify-center items-center gap-2 font-medium text-lg font-poppins">
                     {loadingButton === "khalti"
-                      ? "Loading..."
+                      ? "Redirecting to khalti"
                       : "Pay with Khalti"}
                   </span>
                 </div>
@@ -311,64 +399,152 @@ function Upgrade() {
               <motion.button
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                disabled={loadingButton != null}
+                disabled={loadingButton === "imepay"}
                 onClick={handlePayWithImePay}
-                className={`w-full flex items-center justify-between bg-gradient-to-l ${
-                  loadingButton === "imepay"
-                    ? "from-gray-800 to-gray-950"
-                    : "from-rose-500  to-gray-900 over:shadow-green-500/20"
-                } px-4 py-1 rounded-xl shadow-lg h`}
+                className={`w-full flex items-center justify-between bg-gradient-to-l disabled:from-gray-800 disabled:to-gray-950 from-rose-500 to-gray-900 px-4 py-1 rounded-xl shadow-lg`}
               >
                 <div className="flex items-center gap-4">
-                  <img
-                    src={ImePay}
-                    alt="ImePay"
-                    className="h-12 w-auto"
-                    loading="lazy"
-                  />
-                  <span className="text-white font-medium text-lg font-poppins">
+                  {loadingButton === "imepay" ? (
+                    <Loader2 className="animate-spin text-white h-7 w-7 my-2.5" />
+                  ) : (
+                    <img
+                      src={ImePay}
+                      alt="ImePay"
+                      className="h-12 w-auto"
+                      loading="lazy"
+                    />
+                  )}
+                  <span className="text-white flex justify-center items-center gap-2 font-medium text-lg font-poppins">
                     {loadingButton === "imepay"
-                      ? "Loading..."
+                      ? "Redirecting to imepay"
                       : "Pay with ImePay"}
                   </span>
                 </div>
                 <Flame className="text-white/90 w-5 h-5" />
               </motion.button>
-
-              {/* Esewa Button */}
-              <motion.button
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={loadingButton != null}
-                onClick={handlePayWithEsewa}
-                className={`w-full flex items-center justify-between bg-gradient-to-l ${
-                  loadingButton === "esewa"
-                    ? "from-gray-800 to-gray-950"
-                    : "from-green-500  to-gray-900 over:shadow-green-500/20"
-                } px-4 py-1 rounded-xl shadow-lg h`}
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={Esewa}
-                    alt="Esewa"
-                    className="h-12 w-auto"
-                    loading="lazy"
-                  />
-                  <span className="text-white font-medium text-lg font-poppins">
-                    {loadingButton === "esewa"
-                      ? "Loading..."
-                      : "Pay with Esewa"}
-                  </span>
-                </div>
-                <Zap className="text-white/90 w-5 h-5" />
-              </motion.button>
             </div>
 
-            {/* Payment Security Assurance */}
-            <div className="flex flex-col items-center text-center ">
-              <div className="flex items-center gap-2 text-sm text-gray-300 mb-2 font-poppins">
-                <ShieldCheck className="h-5 w-5 text-amber-400" />
-                <span>100% Secure Payments</span>
+            {/* View Test Credentials */}
+            <div className="flex flex-col items-center mt-4 mb-4 w-full max-w-sm mx-auto">
+              {/* Header */}
+              <div
+                onClick={() => setShowTestCredentials(!showTestCredentials)}
+                className="w-full flex justify-between items-center text-sm text-gray-300 mb-2 font-poppins px-2 cursor-pointer select-none"
+              >
+                <div className="flex items-center gap-2">
+                  <KeyRound className="h-4 w-4 text-amber-400" />
+                  <span className="font-semibold">Test Credentials</span>
+                </div>
+                <motion.div
+                  animate={{ rotate: showTestCredentials ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <ChevronDown className="h-5 w-5 text-amber-400" />
+                </motion.div>
+              </div>
+
+              {/* Animated Credential Table */}
+              <AnimatePresence initial={false}>
+                {showTestCredentials && (
+                  <motion.div
+                    key="credentials"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden w-full"
+                  >
+                    <p className="text-[10px] md:text-xs text-gray-400/70 mb-2 font-poppins px-2 select-none">
+                      These credentials are provided by wallets for testing
+                      purposes and do not perform real transactions.
+                    </p>
+                    <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-md py-3 shadow-md">
+                      {/* Scrollable wrapper */}
+
+                      <div
+                        className="overflow-x-auto scrollbar-hide"
+                        ref={scrollRef}
+                        onWheel={handleWheel}
+                      >
+                        <table className="w-full min-w-[500px] text-xs text-gray-300 font-poppins border-collapse">
+                          <thead className="select-none">
+                            <tr className="text-white border-b border-gray-700">
+                              <th className="py-2 px-3 font-semibold text-left">
+                                Gateway
+                              </th>
+                              <th className="py-2 px-3 font-semibold text-left">
+                                Phone
+                              </th>
+                              <th className="py-2 px-3 font-semibold text-left">
+                                MPIN
+                              </th>
+                              <th className="py-2 px-3 font-semibold text-left">
+                                Password
+                              </th>
+                              <th className="py-2 px-3 font-semibold text-left">
+                                OTP
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              {
+                                gateway: "eSewa",
+                                phone: "9806800001",
+                                mpin: "1122",
+                                pass: "Nepal@123",
+                                otp: "123456",
+                              },
+                              // {
+                              //   gateway: "Khalti",
+                              //   phone: "9806800002",
+                              //   mpin: "3344",
+                              //   pass: "Khalti@123",
+                              //   otp: "654321",
+                              // },
+                              // {
+                              //   gateway: "IME Pay",
+                              //   phone: "9806800003",
+                              //   mpin: "5566",
+                              //   pass: "ImePay@123",
+                              //   otp: "112233",
+                              // },
+                            ].map((item, i) => (
+                              <tr
+                                key={i}
+                                className="border-b border-gray-800 last:border-none hover:bg-gray-800 transition-colors"
+                              >
+                                <td className="py-2 px-3">{item.gateway}</td>
+                                <td className="py-2 px-3 text-white font-medium">
+                                  {item.phone}
+                                </td>
+                                <td className="py-2 px-3 text-white font-medium">
+                                  {item.mpin}
+                                </td>
+                                <td className="py-2 px-3 text-white font-medium">
+                                  {item.pass}
+                                </td>
+                                <td className="py-2 px-3 text-white font-medium">
+                                  {item.otp}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Payment Security */}
+            <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-center ">
+              <div className="flex items-center gap-2 mb-2 font-poppins">
+                <ShieldCheck className="h-4 w-4 text-gray-200" />
+                <span className="text-xs bg-clip-text bg-gradient-to-r text-transparent from-gray-300 via-gray-400 to-gray-600">
+                  100% Secure Payments
+                </span>
               </div>
             </div>
           </motion.div>

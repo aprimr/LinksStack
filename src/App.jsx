@@ -22,6 +22,7 @@ import Contact from "./pages/Contact";
 import TermsAndPrivacy from "./pages/TermsAndPrivacy";
 import ProSupport from "./pages/ProSupport";
 import Settings from "./pages/Settings";
+import PaymentFailed from "./components/PaymentFailed";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -34,6 +35,7 @@ function App() {
   }, []);
 
   const bypassVerificationRoutes = ["/", "/account/verify"];
+  const hideNavbarRoutes = ["/payment-failed"];
 
   if (loading) return <Loading />;
 
@@ -46,7 +48,7 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      {hideNavbarRoutes.includes(location.pathname) ? null : <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
@@ -104,6 +106,15 @@ function App() {
           element={
             <PrivateRoute>
               <ProSupport />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/payment-failed"
+          element={
+            <PrivateRoute>
+              <PaymentFailed />
             </PrivateRoute>
           }
         />
