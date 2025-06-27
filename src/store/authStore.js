@@ -93,6 +93,7 @@ const useAuthStore = create((set) => ({
           bio: "",
           profileSlug,
           isPremium: false,
+          transactionDetails: "",
           avatarUrl: "",
           avatarId: "",
         },
@@ -205,56 +206,56 @@ const useAuthStore = create((set) => ({
       return { success: false, error: error.message };
     }
   },
-
-  // Upgrade user to premium
-  upgrade: async () => {
+  upgrade: async (uId, data) => {
     try {
       set({ loading: true });
+
       const user = await account.get();
 
-      // First try to update existing document
-      try {
-        const response = await db.userDetails.list([
-          Query.equal("userId", user.$id),
-        ]);
-
-        if (response.documents.length > 0) {
-          await db.userDetails.update(response.documents[0].$id, {
-            isPremium: true,
-          });
-        } else {
-          // Create new if doesn't exist
-          await db.userDetails.create(
-            ID.unique(),
-            {
-              userId: user.$id,
-              email: user.email,
-              isPremium: true,
-              name: user.name || "",
-              bio: "",
-              profileSlug: await generateSlug(),
-              avatarUrl: "",
-            },
-            [
-              Permission.read(Role.user(user.$id)),
-              Permission.update(Role.user(user.$id)),
-            ]
-          );
-        }
-      } catch (err) {
-        console.error("Failed to update premium status:", err);
-        throw err;
+      // Validate if payment user matches current user
+      if (user.$id !== uId) {
+        console.error("User ID mismatch. Aborting upgrade.");
+        set({ loading: false });
+        return { success: false, message: "User ID mismatch." };
       }
 
-      const userDetails = await db.userDetails.list([
+      // Fetch userDetails document
+      const response = await db.userDetails.list([
         Query.equal("userId", user.$id),
       ]);
 
+      const userDoc = response?.documents?.[0];
+
+      if (!userDoc) {
+        console.error("No userDetails document found.");
+        set({ loading: false });
+        return { success: false, message: "User details not found." };
+      }
+
+      const transactionDetailsString = JSON.stringify({
+        transactionCode: String(data.transaction_code),
+        transactionUUID: String(data.transaction_uuid),
+        amount: String(data.total_amount),
+        status: String(data.status),
+        productCode: String(data.product_code),
+        transactionDate: String(data.transaction_date),
+      });
+
+      // Update userDetails with premium flag and transaction data
+      await db.userDetails.update(userDoc.$id, {
+        isPremium: true,
+        transactionDetails: transactionDetailsString,
+      });
+
+      // Update state with latest info
+      const updatedDetails = await db.userDetails.get(userDoc.$id);
+
       set({
         isPremium: true,
-        userDetails: userDetails.documents[0] || null,
+        userDetails: updatedDetails,
         loading: false,
       });
+
       return { success: true };
     } catch (error) {
       console.error("Upgrade error:", error);

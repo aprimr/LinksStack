@@ -367,7 +367,7 @@ function Upgrade() {
                 <Zap className="text-white/90 w-5 h-5" />
               </motion.button>
 
-              {/* Khalti Button */}
+              {/* Khalti Button 
               <motion.button
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -395,7 +395,7 @@ function Upgrade() {
                 <Sparkles className="text-white/90 w-5 h-5" />
               </motion.button>
 
-              {/* ImePay Button */}
+               ImePay Button 
               <motion.button
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -421,7 +421,7 @@ function Upgrade() {
                   </span>
                 </div>
                 <Flame className="text-white/90 w-5 h-5" />
-              </motion.button>
+              </motion.button> */}
             </div>
 
             {/* View Test Credentials */}

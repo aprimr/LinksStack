@@ -145,10 +145,10 @@ export default function LandingPage() {
             <motion.button
               whileHover={{ scale: 1.1, rotate: 2 }}
               transition={{ duration: 0.02 }}
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/home")}
               className="inline-block px-12 sm:px-16 py-3 sm:py-4 bg-gradient-to-r from-orange-400 via-rose-500 to-pink-600 rounded-full text-neutral-900 font-black shadow-lg brightness-200 transition text-base sm:text-lg md:text-xl"
             >
-              Go to dashboard
+              Go to HomePage
             </motion.button>
           ) : (
             <motion.button
