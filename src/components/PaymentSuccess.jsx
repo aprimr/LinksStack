@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { BadgeCheck } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import { BadgeCheck, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAuthStore from "../store/authStore";
-import Loading from "../components/Loading";
 import { toast } from "sonner";
 
 const PaymentSuccess = () => {
@@ -17,12 +16,11 @@ const PaymentSuccess = () => {
   const [uId, setUId] = useState("");
 
   useEffect(() => {
-    if (isPremium && !paymentData) {
-      navigate("/");
+    if (isPremium) {
+      navigate("/upgrade");
     }
-  }, [isPremium, paymentData, navigate]);
+  }, [isPremium, navigate]);
 
-  // Decode payment data from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const encodedData = params.get("data");
@@ -45,14 +43,13 @@ const PaymentSuccess = () => {
     setLoading(false);
   }, [navigate]);
 
-  // Redirect if payment status is not COMPLETE or handle upgrade logic
   useEffect(() => {
     if (paymentData && uId && userDetails?.$id) {
       if (paymentData.status !== "COMPLETE") {
-        navigate("/");
+        navigate("/upgrade");
       } else if (uId !== userDetails.userId) {
         toast.error("Transaction user ID mismatch");
-        navigate("/");
+        navigate("/payment-failed");
       } else {
         upgrade(uId, paymentData).then((res) => {
           if (!res.success) {
@@ -63,17 +60,6 @@ const PaymentSuccess = () => {
       }
     }
   }, [paymentData, uId, userDetails, navigate, upgrade]);
-
-  // Redirect if no payment data after loading
-  useEffect(() => {
-    if (!loading && !paymentData) {
-      navigate("/");
-    }
-  }, [loading, paymentData, navigate]);
-
-  if (loading) {
-    return <Loading />;
-  }
 
   const particles = Array(50).fill(0);
 
@@ -194,10 +180,12 @@ const PaymentSuccess = () => {
           >
             <button
               onClick={() => navigate("/dashboard")}
-              className="relative overflow-hidden py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 group"
+              disabled={loading}
+              className="relative overflow-hidden py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 group"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                Go to Dashboard
+                {loading && <Loader2 className="h-6 w-6" />}
+                {loading ? "Processing request" : "Go to Dashboard"}
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>

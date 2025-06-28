@@ -212,7 +212,7 @@ const useAuthStore = create((set) => ({
 
       const user = await account.get();
 
-      // Validate if payment user matches current user
+      // Check if user matches current user
       if (user.$id !== uId) {
         console.error("User ID mismatch. Aborting upgrade.");
         set({ loading: false });
@@ -238,16 +238,16 @@ const useAuthStore = create((set) => ({
         amount: String(data.total_amount),
         status: String(data.status),
         productCode: String(data.product_code),
-        transactionDate: String(data.transaction_date),
+        transactionDate: new Date().toString(),
       });
 
-      // Update userDetails with premium flag and transaction data
+      // Update userDetails with premium true and transaction data
       await db.userDetails.update(userDoc.$id, {
         isPremium: true,
         transactionDetails: transactionDetailsString,
       });
 
-      // Update state with latest info
+      // Update state
       const updatedDetails = await db.userDetails.get(userDoc.$id);
 
       set({

@@ -146,9 +146,10 @@ export default function LandingPage() {
               whileHover={{ scale: 1.1, rotate: 2 }}
               transition={{ duration: 0.02 }}
               onClick={() => navigate("/home")}
-              className="inline-block px-12 sm:px-16 py-3 sm:py-4 bg-gradient-to-r from-orange-400 via-rose-500 to-pink-600 rounded-full text-neutral-900 font-black shadow-lg brightness-200 transition text-base sm:text-lg md:text-xl"
+              className="inline-flex items-center px-12 sm:px-16 py-3 sm:py-4 bg-gradient-to-r from-orange-400 via-rose-500 to-pink-600 rounded-full text-neutral-900 font-black shadow-lg brightness-200 transition text-base sm:text-lg md:text-xl"
             >
-              Go to HomePage
+              GO to Home
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 stroke-[4]" />
             </motion.button>
           ) : (
             <motion.button
