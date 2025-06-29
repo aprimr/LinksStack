@@ -13,6 +13,8 @@ import {
   ToggleLeft,
   ToggleRight,
   Loader2,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import {
   FaGithub,
@@ -36,13 +38,24 @@ import {
 } from "react-icons/fa";
 import { SiNotion, SiLeetcode, SiDailydotdev } from "react-icons/si";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import useAuthStore from "../store/authStore";
 import useHomeStore from "../store/homeStore";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-  const user = useAuthStore((state) => state.user);
-  const { links, activeLinks, fetchLinks, addLink, toggleLink } =
-    useHomeStore();
+  const { user, isPremium } = useAuthStore();
+  const {
+    links,
+    activeLinks,
+    fetchLinks,
+    addLink,
+    updateLink,
+    toggleLink,
+    deleteLink,
+  } = useHomeStore();
+
+  const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [editingLink, setEditingLink] = useState(null);
@@ -54,6 +67,7 @@ const Home = () => {
   });
 
   const [loading, setLoading] = useState("");
+  const [deleting, setDeleting] = useState("");
   const [toggling, setToggling] = useState("");
   const [fetchingLinks, setFetchingLinks] = useState(false);
 
@@ -116,7 +130,7 @@ const Home = () => {
       activeClassName: `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-all duration-200 border backdrop-blur-sm border-yellow-500/30 bg-yellow-600/20 text-yellow-400 shadow-lg shadow-yellow-500/10`,
     },
     {
-      value: "stackOverflow",
+      value: "stackoverflow",
       label: "Stack Overflow",
       icon: FaStackOverflow,
       color: "from-orange-500 to-yellow-500",
@@ -267,24 +281,27 @@ const Home = () => {
 
   const linkIcons = {
     website: <Globe className="w-7 h-7 text-sky-500" />,
-    github: <FaGithub className="w-7 h-7 text-white" />,
-    youtube: <FaYoutube className="w-7 h-7 text-rose-500" />,
-    linkedin: <FaLinkedin className="w-7 h-7 text-blue-500" />,
-    twitter: <FaTwitter className="w-7 h-7 text-sky-500" />,
+    github: <FaGithub className="w-7 h-7 text-gray-800" />,
+    youtube: <FaYoutube className="w-7 h-7 text-[#FF0000]" />,
+    linkedin: <FaLinkedin className="w-7 h-7 text-blue-700" />,
+    twitter: <FaTwitter className="w-7 h-7 text-sky-400" />,
     instagram: <FaInstagram className="w-7 h-7 text-pink-500" />,
-    facebook: <FaFacebook className="w-7 h-7 text-white" />,
-    reddit: <FaReddit className="w-7 h-7 text-white" />,
-    tiktok: <FaTiktok className="w-7 h-7 text-white" />,
+    facebook: <FaFacebook className="w-7 h-7 text-blue-600" />,
+    reddit: <FaReddit className="w-7 h-7 text-[#FF4500]" />,
+    tiktok: <FaTiktok className="w-7 h-7 text-black" />,
     snapchat: <FaSnapchatGhost className="w-7 h-7 text-[#FFFC00]" />,
     pinterest: <FaPinterest className="w-7 h-7 text-red-600" />,
-    discord: <FaDiscord className="w-7 h-7 text-indigo-500" />,
-    twitch: <FaTwitch className="w-7 h-7 text-purple-600" />,
-    medium: <FaMedium className="w-7 h-7 text-white" />,
-    stackoverflow: <FaStackOverflow className="w-7 h-7 text-orange-400" />,
-    slack: <FaSlack className="w-7 h-7 text-pink-500" />,
+    discord: <FaDiscord className="w-7 h-7 text-indigo-600" />,
+    twitch: <FaTwitch className="w-7 h-7 text-purple-700" />,
+    medium: <FaMedium className="w-7 h-7 text-gray-900" />,
+    stackoverflow: <FaStackOverflow className="w-7 h-7 text-orange-600" />,
+    leetcode: <SiLeetcode className="w-7 h-7 text-[#FFA116]" />,
+    dailydev: <SiDailydotdev className="w-7 h-7 text-[#000000]" />,
+    slack: <FaSlack className="w-7 h-7 text-[#4A154B]" />,
     telegram: <FaTelegram className="w-7 h-7 text-sky-500" />,
-    whatsapp: <FaWhatsapp className="w-7 h-7 text-green-500" />,
-    notion: <SiNotion className="w-7 h-7 text-white" />,
+    whatsapp: <FaWhatsapp className="w-7 h-7 text-green-600" />,
+    notion: <SiNotion className="w-7 h-7 text-black" />,
+    other: <Layers2 className="w-7 h-7 text-black" />,
   };
 
   const openAddModal = () => {
@@ -324,13 +341,21 @@ const Home = () => {
 
     try {
       if (editingLink) {
-        await updateLink(editingLink.$id, user.$id, {
-          title: formData.title,
-          url: formData.url,
-          type: formData.type,
-          active: formData.active,
-        });
-        toast.success("Link updated successfully");
+        try {
+          setLoading("updating-link");
+          const data = {
+            title: formData.title,
+            url: formData.url,
+            type: formData.type,
+            active: formData.active,
+          };
+          const res = await updateLink(editingLink.$id, data);
+          res?.success === false && toast.error("Something went wrong");
+          setLoading(null);
+        } catch (error) {
+          toast.error("Something went wrong");
+          setLoading(null);
+        }
       } else {
         try {
           setLoading("adding-link");
@@ -344,7 +369,7 @@ const Home = () => {
           toast.success("Link added successfully");
           setLoading(null);
         } catch (error) {
-          toast.error(error.message || "Something went wrong");
+          toast.error("Something went wrong");
           setLoading(null);
         }
       }
@@ -357,9 +382,16 @@ const Home = () => {
 
   const handleDelete = async (linkId) => {
     try {
-      await deleteLink(linkId, user.$id);
-      toast.success("Link deleted successfully");
+      setDeleting(linkId);
+      const res = await deleteLink(linkId);
+      if (!res?.success) {
+        toast.error("Something went wrong");
+        setDeleting(null);
+        return;
+      }
+      setDeleting(null);
     } catch (error) {
+      setDeleting(null);
       console.error(error);
       toast.error("Failed to delete link");
     }
@@ -368,7 +400,8 @@ const Home = () => {
   const handleToggle = async (linkId, currentActive) => {
     try {
       setToggling(linkId);
-      await toggleLink(linkId, currentActive);
+      const res = await toggleLink(linkId, currentActive, isPremium);
+      res?.success === false && toast.error("Need more active links? Go PRO");
       setToggling(null);
     } catch (error) {
       console.error(error);
@@ -379,7 +412,6 @@ const Home = () => {
 
   // Stats calculation
   const totalLinks = links.length;
-  const inactiveLinks = totalLinks - activeLinks;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-10">
@@ -402,32 +434,65 @@ const Home = () => {
             <span className="font-poppins">Add New Link</span>
           </button>
         </div>
-
-        {/* stats */}
-        {fetchingLinks ? (
-          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 text-xs animate-pulse">
-            <span className="px-2.5 py-0.5 rounded-md bg-slate-700/40 border border-slate-600/50 w-20 h-5" />
-            <span className="px-2.5 py-0.5 rounded-md bg-emerald-600/20 border border-emerald-500/40 w-20 h-5" />
-            <span className="px-2.5 py-0.5 rounded-md bg-rose-600/20 border border-rose-500/40 w-20 h-5" />
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 text-xs">
-            <span className="px-2.5 py-0.5 rounded-md bg-slate-700/40 text-slate-300 border border-slate-600/50 font-medium">
-              Total: {totalLinks}
-            </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 font-medium">
-              Active: {activeLinks}
-            </span>
-            <span className="px-2.5 py-0.5 rounded-md bg-rose-600/20 text-rose-400 border border-rose-500/40 font-medium">
-              Inactive: {inactiveLinks}
-            </span>
-          </div>
+        {/* Ribbon */}
+        {!isPremium && (
+          <motion.div
+            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="w-full bg-gradient-to-r from-yellow-800 via-yellow-700 to-yellow-600 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-[2rem] flex justify-between items-center shadow-xl shadow-yellow-900/50 mb-4 sm:mb-8 border-2 border-yellow-600">
+              <div className="flex items-center gap-2 sm:gap-3 truncate">
+                <div className="p-1.5 sm:p-2 bg-white/10 rounded-full">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <p className="text-sm sm:text-base font-medium text-white/90 font-poppins truncate">
+                  Want more power?{" "}
+                  <span className="hidden md:inline">Upgrade to </span>
+                  <span className="hidden md:inline font-semibold text-white">
+                    PRO for exclusive features
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => navigate("/upgrade")}
+                className="p-2 sm:px-6 sm:py-2.5 rounded-full bg-white/95 hover:bg-white text-yellow-800 hover:text-yellow-900 transition-all duration-200 hover:scale-[1.03] active:scale-100 shadow-lg hover:shadow-yellow-700/40 flex items-center justify-center"
+                aria-label="Upgrade to Pro"
+              >
+                <span className="hidden font-semibold sm:inline-block">
+                  Upgrade to PRO
+                </span>
+                <ChevronRight className="w-5 h-5 sm:ml-2 stroke-[3]" />
+              </button>
+            </div>
+          </motion.div>
         )}
+
+        {/* Stats */}
+        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 text-xs">
+          <span className="px-2.5 py-0.5 flex items-center flex-row gap-1 rounded-md bg-slate-700/40 text-slate-300 border border-slate-600/50 font-medium">
+            Total:{" "}
+            {fetchingLinks ? (
+              <div className="w-3 h-3 bg-slate-600 rounded-sm animate-pulse" />
+            ) : (
+              <p className="font-semibold">{totalLinks}</p>
+            )}
+          </span>
+          <span className="px-2.5 py-0.5 flex items-center flex-row gap-1 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 font-medium">
+            Active:{" "}
+            {fetchingLinks ? (
+              <div className="w-3 h-3 bg-emerald-700 rounded-sm animate-pulse" />
+            ) : (
+              <p className="font-semibold">{activeLinks}</p>
+            )}
+          </span>
+        </div>
 
         {/* Links List */}
         {fetchingLinks ? (
           <div className="space-y-3 sm:space-y-4">
-            {[...Array(3)].map((_, i) => (
+            {[...Array(4)].map((_, i) => (
               <div
                 key={i}
                 className="animate-pulse bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-slate-700/50"
@@ -491,10 +556,8 @@ const Home = () => {
                 {/* Mobile Layout */}
                 <div className="block sm:hidden">
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-700/60 border border-slate-600/50 flex-shrink-0">
-                      {linkIcons[link.type] || (
-                        <Layers2 className="w-8 h-8 text-white" />
-                      )}
+                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-black flex-shrink-0">
+                      {linkIcons[link.type]}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -508,7 +571,7 @@ const Home = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <p className="text-slate-400 text-sm truncate">
+                        <p className="text-slate-400 text-sm truncate font-poppins">
                           {link.url.replace(/^https?:\/\//, "")}
                         </p>
                         <a
@@ -552,15 +615,9 @@ const Home = () => {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEditModal(link)}
-                        className="p-1.5 text-slate-400 hover:text-yellow-400 hover:bg-slate-700/50 rounded-lg transition-all"
+                        className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-slate-700/50 rounded-lg transition-all"
                       >
                         <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(link.$id)}
-                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700/50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
                       </button>
 
                       {/* Toggle button */}
@@ -571,14 +628,14 @@ const Home = () => {
                           }
                         }}
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
-                        ${
-                          toggling === link.$id
-                            ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
-                            : link.active
-                            ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
-                            : "bg-rose-700/30 text-rose-500 hover:bg-rose-700/40 cursor-pointer"
-                        }
-                      `}
+                          ${
+                            toggling === link.$id
+                              ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
+                              : link.active
+                              ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                              : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
+                          }
+                        `}
                       >
                         <button className="bg-transparent border-none focus:outline-none pointer-events-none">
                           {toggling === link.$id ? (
@@ -590,6 +647,28 @@ const Home = () => {
                           )}
                         </button>
                       </div>
+
+                      {/* Delete button */}
+                      <div
+                        className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
+                        ${
+                          deleting === link.$id
+                            ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
+                            : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleDelete(link.$id)}
+                          disabled={deleting === link.$id}
+                          className="bg-transparent border-none focus:outline-none"
+                        >
+                          {deleting === link.$id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -597,10 +676,8 @@ const Home = () => {
                 {/* Desktop Layout */}
                 <div className="hidden sm:flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-700/60 border border-slate-600/50">
-                      {linkIcons[link.type] || (
-                        <Layers2 className="w-5 h-5 text-white" />
-                      )}
+                    <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-white border border-black">
+                      {linkIcons[link.type]}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
@@ -614,7 +691,7 @@ const Home = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-slate-400 text-sm font-poppins">
                           {link.url.replace(/^https?:\/\//, "")}
                         </p>
                         <a
@@ -654,18 +731,15 @@ const Home = () => {
                       >
                         <ChevronDown className="w-4 h-4" />
                       </button>
+
+                      {/* Edit button */}
                       <button
                         onClick={() => openEditModal(link)}
-                        className="p-2 text-slate-400 hover:text-yellow-400 hover:bg-slate-700/50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-slate-700/50 rounded-lg transition-all"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => handleDelete(link.$id)}
-                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-700/50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+
                       {/* Toggle button */}
                       <div
                         onClick={() => {
@@ -674,14 +748,14 @@ const Home = () => {
                           }
                         }}
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
-                        ${
-                          toggling === link.$id
-                            ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
-                            : link.active
-                            ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
-                            : "bg-rose-700/30 text-rose-500 hover:bg-rose-700/40 cursor-pointer"
-                        }
-                      `}
+                          ${
+                            toggling === link.$id
+                              ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
+                              : link.active
+                              ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                              : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
+                          }
+                        `}
                       >
                         <button className="bg-transparent border-none focus:outline-none pointer-events-none">
                           {toggling === link.$id ? (
@@ -693,6 +767,28 @@ const Home = () => {
                           )}
                         </button>
                       </div>
+
+                      {/* Delete button */}
+                      <div
+                        className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
+                        ${
+                          deleting === link.$id
+                            ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
+                            : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleDelete(link.$id)}
+                          disabled={deleting === link.$id}
+                          className="bg-transparent border-none focus:outline-none"
+                        >
+                          {deleting === link.$id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -700,7 +796,6 @@ const Home = () => {
             ))}
           </div>
         )}
-
         {links.length === 0 && !fetchingLinks && (
           <div className="max-w-auto mx-auto p-10 rounded-lg border border-blue-400/30 bg-blue-400/5 backdrop-blur-md shadow-lg text-center">
             <Link2Off className="mx-auto mb-4 w-14 h-14 md:w-20 md:h-20 text-white" />
@@ -722,8 +817,8 @@ const Home = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
-          <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 h-screen bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
               <h2 className="text-lg sm:text-xl font-semibold text-white">
                 {editingLink ? "Edit Link" : "Add New Link"}
@@ -810,6 +905,9 @@ const Home = () => {
                   className="flex-1 px-4 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 disabled:from-slate-600 disabled:to-slate-600 disabled:pointer-events-none text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2 text-sm sm:text-base font-poppins"
                 >
                   {loading === "adding-link" && (
+                    <Loader2 className="h-5 w-5 animate-spin stroke-[3]" />
+                  )}
+                  {loading === "updating-link" && (
                     <Loader2 className="h-5 w-5 animate-spin stroke-[3]" />
                   )}
                   {editingLink ? "Update" : "Create"}

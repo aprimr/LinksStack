@@ -8,8 +8,6 @@ import {
   X,
   Flame,
   Loader2,
-  Key,
-  ChevronUp,
   ChevronDown,
   KeyRound,
 } from "lucide-react";
@@ -82,27 +80,28 @@ function Upgrade() {
     }
   };
 
-  const handlePayWithKhalti = () => {
-    try {
-      setLoadingButton("khalti");
-      toast.info("Khalti payment is not available yet.");
-      setLoadingButton(null);
-    } catch (error) {
-      console.log("Payment error:", error);
-    }
-  };
+  // const handlePayWithKhalti = () => {
+  //   try {
+  //     setLoadingButton("khalti");
+  //     toast.info("Khalti payment is not available yet.");
+  //     setLoadingButton(null);
+  //   } catch (error) {
+  //     console.log("Payment error:", error);
+  //   }
+  // };
 
-  const handlePayWithImePay = () => {
-    try {
-      setLoadingButton("imepay");
-      toast.info("ImePay payment is not available yet.");
-      setLoadingButton(null);
-    } catch (error) {
-      console.log("Payment error:", error);
-    }
-  };
+  // const handlePayWithImePay = () => {
+  //   try {
+  //     setLoadingButton("imepay");
+  //     toast.info("ImePay payment is not available yet.");
+  //     setLoadingButton(null);
+  //   } catch (error) {
+  //     console.log("Payment error:", error);
+  //   }
+  // };
 
   // Function to handle horizontal scrolling
+
   const handleWheel = (e) => {
     if (scrollRef.current) {
       e.preventDefault();
@@ -315,7 +314,7 @@ function Upgrade() {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative w-full max-w-md rounded-2xl border border-amber-900/60 bg-gradient-to-br from-gray-900 via-gray-950 to-black bg-opacity-90 backdrop-blur-lg p-8 "
           >
-            {/* Close Button (More Accessible) */}
+            {/* Close Button */}
             <button
               onClick={() => {
                 setShowPaymentModal(false);

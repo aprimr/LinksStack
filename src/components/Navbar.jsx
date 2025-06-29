@@ -61,7 +61,7 @@ function Navbar() {
       ];
 
   return (
-    <header className="fixed top-0 w-full bg-gray-900/10 backdrop-blur-xl z-50">
+    <header className="fixed top-0 w-full bg-gray-900/10 backdrop-blur-xl z-50 select-none">
       <div className="max-w-screen-lg mx-auto px-6 py-3 flex justify-between items-center font-inter">
         {/* Logo */}
         <NavLink

@@ -12,7 +12,7 @@ const useHomeStore = create((set) => ({
       const user = await account.get();
       const links = await db.links.list([
         Query.equal("userId", user.$id),
-        Query.orderDesc("index"),
+        Query.orderAsc("index"),
       ]);
       const active = await db.links.list([
         Query.equal("userId", user.$id),
@@ -66,10 +66,35 @@ const useHomeStore = create((set) => ({
     }
   },
 
-  deleteLink: async () => {},
-
-  toggleLink: async (linkId, currentActive) => {
+  deleteLink: async (linkId) => {
     try {
+      await db.links.delete(linkId);
+      // Update state
+      set((state) => ({
+        links: state.links.filter((link) => link.$id !== linkId),
+        activeLinks: state.activeLinks - 1,
+      }));
+      return { success: true, message: "Link deleted successfully" };
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  toggleLink: async (linkId, currentActive, isPRO) => {
+    try {
+      // get user and links
+      const user = await account.get();
+      const links = await db.links.list([
+        Query.equal("userId", user.$id),
+        Query.equal("active", true),
+      ]);
+
+      // check if user has more than 3 links skip for pro
+      if (!isPRO && links.documents.length >= 3 && currentActive === false) {
+        return { success: false, message: "Need more active links? Go PRO" };
+      }
+
+      // Toggle active state
       await db.links.update(linkId, {
         active: !currentActive,
       });
@@ -88,7 +113,19 @@ const useHomeStore = create((set) => ({
     }
   },
 
-  updateLink: async () => {},
+  updateLink: async (linkId, data) => {
+    try {
+      await db.links.update(linkId, data);
+      set((state) => ({
+        links: state.links.map((link) =>
+          link.$id === linkId ? { ...link, ...data } : link
+        ),
+      }));
+      return { success: true, message: "Link updated successfully" };
+    } catch (error) {
+      console.log(error);
+    }
+  },
 }));
 
 export default useHomeStore;
