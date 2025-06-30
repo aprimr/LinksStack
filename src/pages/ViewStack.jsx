@@ -68,7 +68,6 @@ const ViewStack = () => {
       }
 
       const userData = userRes.documents[0];
-      console.log(userData);
       setUserDetails(userData);
 
       // Set theme from user preferences if available
@@ -173,8 +172,6 @@ const ViewStack = () => {
     notion: <SiNotion className="w-7 h-7 text-black" />,
     other: <Layers2 className="w-6 h-6 text-black" />,
   };
-
-  console.log(links);
 
   if (loading) {
     return (

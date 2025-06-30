@@ -20,14 +20,21 @@ import {
   Layers2,
   Loader2,
   Info,
+  ChevronDown,
+  Palette,
+  Paintbrush,
+  Plus,
+  Minus,
+  Crown,
 } from "lucide-react";
 import { FaApple, FaLinux, FaSafari } from "react-icons/fa";
 import { DiAndroid } from "react-icons/di";
-import { format, formatDistanceToNow } from "date-fns";
-import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import themes from "../constants/themes";
 import useAuthStore from "../store/authStore";
 import useSettingsStore from "../store/settingsStore";
-import { toast } from "sonner";
+import { format, formatDistanceToNow } from "date-fns";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Device icon component
 const DeviceIcon = ({ deviceName, clientName }) => {
@@ -86,6 +93,7 @@ const Settings = () => {
     updatePassword,
     getSessions,
     sessions,
+    updateTheme,
     deletesession,
     deleteAllSessions,
   } = useSettingsStore();
@@ -97,6 +105,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState("");
   const isConfirmed = confirmText === "CONFIRM";
@@ -170,6 +179,21 @@ const Settings = () => {
     }
   };
 
+  const handleThemeChange = async (id) => {
+    try {
+      setLoading("updating-theme");
+      const res = await updateTheme(userDetails.$id, id);
+      if (res?.success) {
+        toast.success("Theme updated successfully");
+        setLoading("");
+      }
+    } catch (error) {
+      setLoading("");
+      toast.error(error?.message || "Error updating theme");
+      console.log(error);
+    }
+  };
+
   const handleEndSession = async (sessionId) => {
     try {
       setLoading(sessionId);
@@ -206,6 +230,24 @@ const Settings = () => {
     } finally {
       setLoading("");
     }
+  };
+
+  // Extract palette colors from a theme
+  const extractThemePalette = (theme) => {
+    const extract = (classStr) => {
+      const match = classStr.match(/\[#(.*?)\]/);
+      return match ? `#${match[1]}` : "#000000";
+    };
+
+    return [
+      extract(theme.colors.bg),
+      extract(theme.colors.card),
+      extract(theme.colors.link),
+      extract(theme.colors.avatarBorder),
+      extract(theme.colors.text),
+      extract(theme.colors.subtext),
+      extract(theme.colors.accent),
+    ];
   };
 
   return (
@@ -600,6 +642,106 @@ const Settings = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Theme Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", damping: 20, stiffness: 200 }}
+          className={`bg-gray-900 rounded-xl shadow-md p-6 border border-gray-800 font-poppins`}
+        >
+          {/* Title */}
+          <div
+            className={`flex justify-between items-center space-x-2 ${
+              showThemeSettings ? "mb-6" : "mb-0"
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-gray-800 rounded-lg">
+                <Paintbrush className="text-gray-400" size={20} />
+              </div>
+              <h2 className="text-xl font-semibold text-white">
+                Theme Settings
+              </h2>
+            </div>
+            <div
+              onClick={() => {
+                setShowThemeSettings(!showThemeSettings);
+                setLoading("");
+              }}
+              className="cursor-pointer"
+            >
+              <div className="p-2 bg-gray-800 rounded-lg">
+                {!showThemeSettings ? (
+                  <Plus className="text-gray-400" size={20} />
+                ) : (
+                  <Minus className="text-gray-400" size={20} />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tip */}
+          {showThemeSettings && (
+            <div className="w-fit flex items-center gap-2 text-[#ffb347] bg-[#1a1200] px-4 py-2 rounded-md my-4 border border-[#ffaa33]/30 text-sm font-medium font-poppins">
+              <span>
+                <span className="text-[#ffc107] font-semibold">PRO</span> access
+                is required to unlock all themes.
+              </span>
+            </div>
+          )}
+
+          {/* Theme Grid */}
+          {showThemeSettings && (
+            <div
+              className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5 mt-3 items-start ${
+                !isPremium
+                  ? ""
+                  : "blur-[8px] pointer-events-none cursor-default"
+              } ${
+                loading === "updating-theme"
+                  ? "pointer-events-none cursor-wait"
+                  : ""
+              }`}
+            >
+              {Object.entries(themes).map(([id, theme]) => {
+                const palette = extractThemePalette(theme);
+                return (
+                  <button
+                    key={id}
+                    onClick={() => handleThemeChange(id)}
+                    className="flex justify-center items-center flex-col bg-transparent hover:scale-[1.02] transition-transform duration-200 shadow-sm group"
+                  >
+                    {/* Color Strip */}
+                    <div
+                      className={`flex w-fit justify-center border-2 ${
+                        userDetails.theme === id
+                          ? "border-blue-400"
+                          : " border-gray-600"
+                      } group-hover:border-blue-400  overflow-hidden rounded-xs mb-1.5`}
+                    >
+                      {palette.map((hex, index) => (
+                        <div
+                          key={index}
+                          style={{ backgroundColor: hex }}
+                          className="w-5 h-10 border border-black"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Theme Name */}
+                    <div className="inline-flex justify-center items-center gap-1 text-center text-xs font-medium text-white mt-1">
+                      {userDetails.theme === id && (
+                        <Check className="text-green-400 h-4 w-4" />
+                      )}
+                      {theme.name}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
 
         {/* Active Sessions */}
         <motion.div

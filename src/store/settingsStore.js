@@ -5,6 +5,7 @@ import { Query } from "appwrite";
 
 const useSettingsStore = create((set) => ({
   sessions: [],
+  theme: "obsidian",
 
   // Get all sessions
   getSessions: async () => {
@@ -61,6 +62,18 @@ const useSettingsStore = create((set) => ({
       return { success: true };
     } catch (error) {
       return { success: false, message: "Error updating password" };
+    }
+  },
+
+  // Update theme
+  updateTheme: async (id, theme) => {
+    try {
+      await db.userDetails.update(id, { theme: theme });
+      set({ theme });
+      return { success: true };
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: "Error updating theme" };
     }
   },
 }));

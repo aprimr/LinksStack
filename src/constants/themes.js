@@ -1,6 +1,9 @@
+import { id } from "date-fns/locale";
+
 const themes = {
   // Dark Professional Themes
   obsidian: {
+    id: "obsidian",
     name: "Obsidian",
     colors: {
       bg: "bg-[#0a0a0a]",
@@ -13,6 +16,7 @@ const themes = {
     },
   },
   midnight: {
+    id: "midnight",
     name: "Midnight",
     colors: {
       bg: "bg-[#0f0f1a]",
@@ -25,6 +29,7 @@ const themes = {
     },
   },
   abyss: {
+    id: "abyss",
     name: "Abyss",
     colors: {
       bg: "bg-[#050510]",
@@ -37,6 +42,7 @@ const themes = {
     },
   },
   eclipse: {
+    id: "eclipse",
     name: "Eclipse",
     colors: {
       bg: "bg-[#080808]",
@@ -49,6 +55,7 @@ const themes = {
     },
   },
   void: {
+    id: "void",
     name: "Void",
     colors: {
       bg: "bg-[#000000]",
@@ -61,6 +68,7 @@ const themes = {
     },
   },
   charcoal: {
+    id: "charcoal",
     name: "Charcoal",
     colors: {
       bg: "bg-[#111111]",
@@ -73,6 +81,7 @@ const themes = {
     },
   },
   onyx: {
+    id: "onyx",
     name: "Onyx",
     colors: {
       bg: "bg-[#0d0d0d]",
@@ -85,6 +94,7 @@ const themes = {
     },
   },
   noir: {
+    id: "noir",
     name: "Noir",
     colors: {
       bg: "bg-[#070707]",
@@ -97,6 +107,7 @@ const themes = {
     },
   },
   graphite: {
+    id: "graphite",
     name: "Graphite",
     colors: {
       bg: "bg-[#0e0e0e]",
@@ -109,6 +120,7 @@ const themes = {
     },
   },
   carbon: {
+    id: "carbon",
     name: "Carbon",
     colors: {
       bg: "bg-[#090909]",
@@ -123,6 +135,7 @@ const themes = {
 
   // Dark Themes
   deepOcean: {
+    id: "deepOcean",
     name: "Deep Ocean",
     colors: {
       bg: "bg-[#001a33]",
@@ -135,6 +148,7 @@ const themes = {
     },
   },
   emeraldNight: {
+    id: "emeraldNight",
     name: "Emerald Night",
     colors: {
       bg: "bg-[#00251a]",
@@ -147,6 +161,7 @@ const themes = {
     },
   },
   royalPurple: {
+    id: "royalPurple",
     name: "Royal Purple",
     colors: {
       bg: "bg-[#1a0033]",
@@ -159,6 +174,7 @@ const themes = {
     },
   },
   bloodMoon: {
+    id: "bloodMoon",
     name: "Blood Moon",
     colors: {
       bg: "bg-[#330000]",
@@ -171,6 +187,7 @@ const themes = {
     },
   },
   goldenNight: {
+    id: "goldenNight",
     name: "Golden Night",
     colors: {
       bg: "bg-[#332100]",
@@ -183,6 +200,7 @@ const themes = {
     },
   },
   steelBlue: {
+    id: "steelBlue",
     name: "Steel Blue",
     colors: {
       bg: "bg-[#001f33]",
@@ -195,6 +213,7 @@ const themes = {
     },
   },
   forestNight: {
+    id: "forestNight",
     name: "Forest Night",
     colors: {
       bg: "bg-[#002200]",
@@ -207,6 +226,7 @@ const themes = {
     },
   },
   violetDream: {
+    id: "violetDream",
     name: "Violet Dream",
     colors: {
       bg: "bg-[#1a0033]",
@@ -219,6 +239,7 @@ const themes = {
     },
   },
   copperNight: {
+    id: "copperNight",
     name: "Copper Night",
     colors: {
       bg: "bg-[#331a00]",
@@ -231,6 +252,7 @@ const themes = {
     },
   },
   twilight: {
+    id: "twilight",
     name: "Twilight",
     colors: {
       bg: "bg-[#330033]",
@@ -245,6 +267,7 @@ const themes = {
 
   // Light Professional Themes
   ivory: {
+    id: "ivory",
     name: "Ivory",
     colors: {
       bg: "bg-[#f9f9f9]",
@@ -257,6 +280,7 @@ const themes = {
     },
   },
   pearl: {
+    id: "pearl",
     name: "Pearl",
     colors: {
       bg: "bg-[#f5f5f5]",
@@ -269,6 +293,7 @@ const themes = {
     },
   },
   linen: {
+    id: "linen",
     name: "Linen",
     colors: {
       bg: "bg-[#f8f4f0]",
@@ -281,6 +306,7 @@ const themes = {
     },
   },
   parchment: {
+    id: "parchment",
     name: "Parchment",
     colors: {
       bg: "bg-[#f7f3e9]",
@@ -293,6 +319,7 @@ const themes = {
     },
   },
   frost: {
+    id: "frost",
     name: "Frost",
     colors: {
       bg: "bg-[#f0f5f9]",
@@ -307,6 +334,7 @@ const themes = {
 
   // Light Themes
   skyBlue: {
+    id: "skyBlue",
     name: "Sky Blue",
     colors: {
       bg: "bg-[#e6f2ff]",
@@ -319,6 +347,7 @@ const themes = {
     },
   },
   mint: {
+    id: "mint",
     name: "Mint",
     colors: {
       bg: "bg-[#e6fff2]",
@@ -331,6 +360,7 @@ const themes = {
     },
   },
   lavender: {
+    id: "lavender",
     name: "Lavender",
     colors: {
       bg: "bg-[#f2e6ff]",
@@ -343,6 +373,7 @@ const themes = {
     },
   },
   peach: {
+    id: "peach",
     name: "Peach",
     colors: {
       bg: "bg-[#ffe6e6]",
@@ -355,6 +386,7 @@ const themes = {
     },
   },
   sunshine: {
+    id: "sunshine",
     name: "Sunshine",
     colors: {
       bg: "bg-[#fff2e6]",
