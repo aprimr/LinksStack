@@ -695,9 +695,7 @@ const Settings = () => {
           {showThemeSettings && (
             <div
               className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5 mt-3 items-start ${
-                !isPremium
-                  ? ""
-                  : "blur-[8px] pointer-events-none cursor-default"
+                isPremium ? "" : "blur-[8px] pointer-events-none cursor-default"
               } ${
                 loading === "updating-theme"
                   ? "pointer-events-none cursor-wait"
