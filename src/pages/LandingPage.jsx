@@ -122,8 +122,8 @@ export default function LandingPage() {
                 <Layers2 className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-200" />
                 <span className="text-sm sm:text-base lg:text-lg font-medium font-poppins truncate">
                   {user
-                    ? `linksstack.com/${userDetails?.profileSlug}`
-                    : `linksstack.com/aT7bU9zP`}
+                    ? `linksstack.com/s/${userDetails?.profileSlug}`
+                    : `linksstack.com/s/aT7bU9zP`}
                 </span>
               </div>
             </div>

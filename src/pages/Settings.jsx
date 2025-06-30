@@ -79,12 +79,7 @@ const formatExpiry = (dateString) => {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const {
-    checkSession,
-    user,
-    userDetails,
-    isPremium,
-  } = useAuthStore();
+  const { checkSession, user, userDetails, isPremium } = useAuthStore();
   const {
     updateProfileSlug,
     updateProfileInfo,
@@ -119,7 +114,6 @@ const Settings = () => {
       setLoading("updating-info");
       const res = await updateProfileInfo(userDetails.$id, { name, bio });
       if (res?.success) toast.success("Profile updated successfully");
-      fe;
     } catch (error) {
       console.error(error);
     }
@@ -275,7 +269,7 @@ const Settings = () => {
                 <div className="flex items-center px-3 py-2 bg-gray-800/50 border-r border-gray-700">
                   <Layers2 className="text-gray-500 mr-2" size={16} />
                   <p className="text-gray-400 text-sm whitespace-nowrap">
-                    {import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/
+                    {import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/s/
                   </p>
                 </div>
 
@@ -343,7 +337,7 @@ const Settings = () => {
                   <div className="flex items-center px-3 py-2 bg-gray-800/50 border-r border-gray-700">
                     <Layers2 className="text-gray-500 mr-2" size={16} />
                     <p className="text-gray-400 text-sm whitespace-nowrap">
-                      {import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/
+                      {import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/s/
                     </p>
                   </div>
                   <input

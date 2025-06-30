@@ -97,10 +97,7 @@ const useAuthStore = create((set) => ({
           avatarUrl: "",
           avatarId: "",
         },
-        [
-          Permission.read(Role.user(user.$id)),
-          Permission.update(Role.user(user.$id)),
-        ],
+        [Permission.read(Role.any()), Permission.update(Role.user(user.$id))],
         ID.unique()
       );
 

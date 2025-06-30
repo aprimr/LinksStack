@@ -175,13 +175,13 @@ const Profile = () => {
               </p>
 
               <NavLink
-                to={`/${userDetails?.profileSlug}`}
+                to={`/s/${userDetails?.profileSlug}`}
                 className="inline-flex items-center gap-2 text-sm md:text-base text-gray-300 bg-gray-800/50 px-4 py-2 rounded-full hover:bg-gray-700/60 transition-colors"
               >
                 <Layers2 className="w-5 h-5" />
                 <span className="truncate max-w-xs">{`${
                   import.meta.env.VITE_FRONTEND_URL.split("//")[1]
-                }/${userDetails?.profileSlug}`}</span>
+                }/s/${userDetails?.profileSlug}`}</span>
               </NavLink>
 
               <div className="flex flex-wrap items-center gap-4 ">
@@ -283,11 +283,11 @@ const Profile = () => {
             {/* ProfileLink, Email, joined date */}
             <div className="space-y-3">
               <div className="space-y-2 ">
-                <NavLink to={`/${userDetails?.profileSlug}`}>
+                <NavLink to={`/s/${userDetails?.profileSlug}`}>
                   <div className=" inline-flex  items-center gap-2 text-sm text-gray-300 bg-gray-800/50 px-3 py-1.5 rounded-full">
                     <Layers2 className="w-4 h-4" />
                     <span className="truncate">
-                      {`${import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/${
+                      {`${import.meta.env.VITE_FRONTEND_URL.split("//")[1]}/s/${
                         userDetails?.profileSlug
                       }`}
                     </span>

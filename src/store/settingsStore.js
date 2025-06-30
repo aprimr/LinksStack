@@ -45,7 +45,7 @@ const useSettingsStore = create((set) => ({
   updateProfileInfo: async (userId, data) => {
     try {
       await account.updateName(data.name);
-      await db.userDetails.update(userId, { bio: data.bio });
+      await db.userDetails.update(userId, { name: data.name, bio: data.bio });
       set({ name: data.name, bio: data.bio });
       return { success: true, message: "Profile updated successfully" };
     } catch (error) {

@@ -24,6 +24,7 @@ import ProSupport from "./pages/ProSupport";
 import Settings from "./pages/Settings";
 import PaymentFailed from "./components/PaymentFailed";
 import PaymentSuccess from "./components/PaymentSuccess";
+import ViewStack from "./pages/ViewStack";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -36,7 +37,7 @@ function App() {
   }, []);
 
   const bypassVerificationRoutes = ["/", "/account/verify"];
-  const hideNavbarRoutes = ["/payment-failed", "/payment-success"];
+  const hideNavbarRoutes = ["/payment-failed", "/payment-success", "/s/"];
 
   if (loading) return <Loading />;
 
@@ -49,7 +50,9 @@ function App() {
 
   return (
     <>
-      {hideNavbarRoutes.includes(location.pathname) ? null : <Navbar />}
+      {!hideNavbarRoutes.some((r) => location.pathname.startsWith(r)) && (
+        <Navbar />
+      )}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
@@ -58,6 +61,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms-and-privacy" element={<TermsAndPrivacy />} />
+        <Route path="/s/:userId" element={<ViewStack />} />
 
         <Route
           path="/home"

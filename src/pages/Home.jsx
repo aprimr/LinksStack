@@ -15,6 +15,7 @@ import {
   Loader2,
   ChevronRight,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import {
   FaGithub,
@@ -50,6 +51,7 @@ const Home = () => {
     activeLinks,
     fetchLinks,
     addLink,
+    reorderLinks,
     updateLink,
     toggleLink,
     deleteLink,
@@ -69,6 +71,7 @@ const Home = () => {
   const [loading, setLoading] = useState("");
   const [deleting, setDeleting] = useState("");
   const [toggling, setToggling] = useState("");
+  const [reordering, setReordering] = useState("");
   const [fetchingLinks, setFetchingLinks] = useState(false);
 
   useEffect(() => {
@@ -301,7 +304,7 @@ const Home = () => {
     telegram: <FaTelegram className="w-7 h-7 text-sky-500" />,
     whatsapp: <FaWhatsapp className="w-7 h-7 text-green-600" />,
     notion: <SiNotion className="w-7 h-7 text-black" />,
-    other: <Layers2 className="w-7 h-7 text-black" />,
+    other: <Layers2 className="w-6 h-6 text-black" />,
   };
 
   const openAddModal = () => {
@@ -410,6 +413,19 @@ const Home = () => {
     }
   };
 
+  const handleReorderLink = async (linkId, direction) => {
+    try {
+      setReordering(linkId);
+      const res = await reorderLinks(linkId, direction);
+      res?.success === false && toast.error("Something went wrong");
+      setReordering(null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+      setReordering(null);
+    }
+  };
+
   // Stats calculation
   const totalLinks = links.length;
 
@@ -442,49 +458,54 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className="w-full bg-gradient-to-r from-yellow-800 via-yellow-700 to-yellow-600 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-[2rem] flex justify-between items-center shadow-xl shadow-yellow-900/50 mb-4 sm:mb-8 border-2 border-yellow-600">
-              <div className="flex items-center gap-2 sm:gap-3 truncate">
-                <div className="p-1.5 sm:p-2 bg-white/10 rounded-full">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="w-full bg-gradient-to-r from-yellow-800 via-yellow-700 to-yellow-600 text-white px-3 py-2 sm:px-6 sm:py-4 rounded-[2rem] flex justify-between items-center shadow-xl shadow-yellow-900/50 mb-4 sm:mb-8 border-2 border-yellow-600">
+              <div className="flex items-center gap-2 sm:gap-3 truncate min-w-0">
+                <div className="p-1.5 sm:p-2 bg-white/10 rounded-full flex-shrink-0">
+                  <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <p className="text-sm sm:text-base font-medium text-white/90 font-poppins truncate">
-                  Want more power?{" "}
+                <p className="text-xs sm:text-base font-medium text-white/90 font-poppins truncate min-w-0">
+                  Hit a limit?{" "}
                   <span className="hidden md:inline">Upgrade to </span>
                   <span className="hidden md:inline font-semibold text-white">
-                    PRO for exclusive features
+                    PRO
+                  </span>
+                  <span className="hidden md:inline">
+                    {" "}
+                    for exclusive features
                   </span>
                 </p>
               </div>
+
               <button
                 onClick={() => navigate("/upgrade")}
-                className="p-2 sm:px-6 sm:py-2.5 rounded-full bg-white/95 hover:bg-white text-yellow-800 hover:text-yellow-900 transition-all duration-200 hover:scale-[1.03] active:scale-100 shadow-lg hover:shadow-yellow-700/40 flex items-center justify-center"
+                className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-yellow-800 hover:bg-white/90 hover:text-yellow-900 transition-all duration-200 hover:scale-[1.03] active:scale-100 shadow-md hover:shadow-yellow-700/40 flex items-center justify-center flex-shrink-0 ml-3 sm:ml-4"
                 aria-label="Upgrade to Pro"
               >
-                <span className="hidden font-semibold sm:inline-block">
+                <span className="font-semibold inline text-xs sm:text-base">
                   Upgrade to PRO
                 </span>
-                <ChevronRight className="w-5 h-5 sm:ml-2 stroke-[3]" />
+                <ChevronRight className="w-4 h-4 ml-1 sm:ml-2 stroke-[3]" />
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* Stats */}
-        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 text-xs">
-          <span className="px-2.5 py-0.5 flex items-center flex-row gap-1 rounded-md bg-slate-700/40 text-slate-300 border border-slate-600/50 font-medium">
+        {/* Stats and Btn */}
+        <div className="flex flex-wrap justify-start   gap-2 mb-4 sm:mb-6 text-xs">
+          <span className="px-2.5 py-0.5 flex items-center gap-1 rounded-md bg-slate-700/40 text-slate-300 border border-slate-600/50 font-medium">
             Total:{" "}
             {fetchingLinks ? (
               <div className="w-3 h-3 bg-slate-600 rounded-sm animate-pulse" />
             ) : (
-              <p className="font-semibold">{totalLinks}</p>
+              <span className="font-semibold">{totalLinks}</span>
             )}
           </span>
-          <span className="px-2.5 py-0.5 flex items-center flex-row gap-1 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 font-medium">
+          <span className="px-2.5 py-0.5 flex items-center gap-1 rounded-md bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 font-medium">
             Active:{" "}
             {fetchingLinks ? (
               <div className="w-3 h-3 bg-emerald-700 rounded-sm animate-pulse" />
             ) : (
-              <p className="font-semibold">{activeLinks}</p>
+              <span className="font-semibold">{activeLinks}</span>
             )}
           </span>
         </div>
@@ -597,14 +618,14 @@ const Home = () => {
                   <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => {}}
+                        onClick={() => handleReorderLink(link.$id, "up")}
                         disabled={index === 0}
                         className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ChevronUp className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => {}}
+                        onClick={() => handleReorderLink(link.$id, "down")}
                         disabled={index === links.length - 1}
                         className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -718,14 +739,14 @@ const Home = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {}}
+                        onClick={() => handleReorderLink(link.$id, "up")}
                         disabled={index === 0}
                         className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ChevronUp className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => {}}
+                        onClick={() => handleReorderLink(link.$id, "down")}
                         disabled={index === links.length - 1}
                         className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >

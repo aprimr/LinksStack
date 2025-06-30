@@ -126,6 +126,47 @@ const useHomeStore = create((set) => ({
       console.log(error);
     }
   },
+
+  // Reorder link
+  reorderLinks: async (linkId, direction) => {
+    try {
+      set((state) => {
+        const links = [...state.links];
+        const currentIndex = links.findIndex((l) => l.$id === linkId);
+
+        // Determine target index based on direction
+        const targetIndex =
+          direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+        // Bounds check
+        if (targetIndex < 0 || targetIndex >= links.length) return { links };
+
+        // Swap links
+        [links[currentIndex], links[targetIndex]] = [
+          links[targetIndex],
+          links[currentIndex],
+        ];
+
+        // Update indexes in state
+        const reorderedLinks = links.map((link, idx) => ({
+          ...link,
+          index: idx,
+        }));
+
+        return { links: reorderedLinks };
+      });
+
+      // After state is updated, sync indexes to DB
+      const updatedLinks = useHomeStore.getState().links;
+      await Promise.all(
+        updatedLinks.map((link, idx) =>
+          db.links.update(link.$id, { index: idx })
+        )
+      );
+    } catch (error) {
+      console.error("Error reordering links:", error);
+    }
+  },
 }));
 
 export default useHomeStore;
