@@ -15,7 +15,6 @@ import {
   Loader2,
   ChevronRight,
   Sparkles,
-  ArrowRight,
 } from "lucide-react";
 import {
   FaGithub,

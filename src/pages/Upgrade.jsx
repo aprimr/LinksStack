@@ -6,7 +6,6 @@ import {
   Sparkles,
   ShieldCheck,
   X,
-  Flame,
   Loader2,
   ChevronDown,
   KeyRound,
@@ -16,8 +15,6 @@ import useAuthStore from "../store/authStore";
 import { functions } from "../appwrite/config";
 import { toast } from "sonner";
 import Esewa from "../assets/esewa.png";
-import ImePay from "../assets/imepay.png";
-import Khalti from "../assets/khalti.png";
 
 function Upgrade() {
   const user = useAuthStore((state) => state.user);
@@ -432,7 +429,7 @@ function Upgrade() {
               >
                 <div className="flex items-center gap-2">
                   <KeyRound className="h-4 w-4 text-amber-400" />
-                  <span className="font-semibold">Test Credentials</span>
+                  <span className="font-semibold">Payment Credentials</span>
                 </div>
                 <motion.div
                   animate={{ rotate: showTestCredentials ? 180 : 0 }}
