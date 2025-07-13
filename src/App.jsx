@@ -25,6 +25,8 @@ import Settings from "./pages/Settings";
 import PaymentFailed from "./components/PaymentFailed";
 import PaymentSuccess from "./components/PaymentSuccess";
 import ViewStack from "./pages/ViewStack";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 function App() {
   const checkSession = useAuthStore((state) => state.checkSession);
   const user = useAuthStore((state) => state.user);
@@ -37,7 +39,12 @@ function App() {
   }, []);
 
   const bypassVerificationRoutes = ["/", "/account/verify"];
-  const hideNavbarRoutes = ["/payment-failed", "/payment-success", "/s/"];
+  const hideNavbarRoutes = [
+    "/payment-failed",
+    "/payment-success",
+    "/s/",
+    "/reset-password",
+  ];
 
   if (loading) return <Loading />;
 
@@ -57,6 +64,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/account/verify" element={<VerifyEmail />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />

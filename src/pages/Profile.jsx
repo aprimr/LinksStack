@@ -89,7 +89,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-gray-900 text-white font-sans overflow-hidden pt-32 md:pt-20 pb-16">
-      {/* Main Content Container */}
       <div className="max-w-screen-lg mx-auto px-4 sm:px-6 w-full">
         {/* Profile Header Section */}
         <motion.section

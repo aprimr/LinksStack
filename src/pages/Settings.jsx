@@ -251,7 +251,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-gray-950 text-gray-100 py-16 sm:pt-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-black to-gray-950 text-gray-100 py-16 sm:pt-16 px-4 sm:px-6 lg:px-8 select-none">
       <div className="max-w-screen-lg mx-auto space-y-8">
         {/* Profile Setting */}
         <motion.div

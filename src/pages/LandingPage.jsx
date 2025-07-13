@@ -407,7 +407,7 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
-          <p className="mt-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-100 via-vlue-200 to-blue-500 brightness-125 font-poppins text-sm sm:text-base">
+          <p className="mt-4 text-gray-300 font-poppins text-sm sm:text-base">
             and many more...
           </p>
         </div>
@@ -434,7 +434,7 @@ export default function LandingPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate(`/s/${userDetails.profileSlug}`)}
               className="bg-white text-pink-600 font-bold px-12 sm:px-20 py-4 rounded-full shadow-lg uppercase tracking-wider hover:brightness-105 transition text-sm sm:text-base"
             >
               View Your LinksStack

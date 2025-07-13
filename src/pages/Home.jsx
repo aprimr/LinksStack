@@ -68,8 +68,8 @@ const Home = () => {
   });
 
   const [loading, setLoading] = useState("");
-  const [deleting, setDeleting] = useState("");
-  const [toggling, setToggling] = useState("");
+  const [deleting, setDeleting] = useState([]);
+  const [toggling, setToggling] = useState([]);
   const [reordering, setReordering] = useState("");
   const [fetchingLinks, setFetchingLinks] = useState(false);
 
@@ -384,16 +384,17 @@ const Home = () => {
 
   const handleDelete = async (linkId) => {
     try {
-      setDeleting(linkId);
+      setDeleting((prev) => [...prev, linkId]);
       const res = await deleteLink(linkId);
       if (!res?.success) {
         toast.error("Something went wrong");
-        setDeleting(null);
+        setDeleting((prev) => prev.filter((id) => id !== linkId));
         return;
       }
-      setDeleting(null);
+      toast.success("Link deleted successfully");
+      setDeleting((prev) => prev.filter((id) => id !== linkId));
     } catch (error) {
-      setDeleting(null);
+      setDeleting((prev) => prev.filter((id) => id !== linkId));
       console.error(error);
       toast.error("Failed to delete link");
     }
@@ -401,14 +402,16 @@ const Home = () => {
 
   const handleToggle = async (linkId, currentActive) => {
     try {
-      setToggling(linkId);
+      setToggling((prev) => [...prev, linkId]);
       const res = await toggleLink(linkId, currentActive, isPremium);
-      res?.success === false && toast.error("Need more active links? Go PRO");
-      setToggling(null);
+      if (res?.success === false) {
+        toast.error("Need more active links? Go PRO");
+      }
+      setToggling((prev) => prev.filter((id) => id !== linkId));
     } catch (error) {
       console.error(error);
       toast.error("Failed to toggle link");
-      setToggling(null);
+      setToggling((prev) => prev.filter((id) => id !== linkId));
     }
   };
 
@@ -603,14 +606,6 @@ const Home = () => {
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </div>
-                      {/* <div className="text-xs">
-                        <span className="font-medium text-slate-300">
-                          {link.clicks?.toLocaleString() || 0}
-                        </span>
-                        <span className="text-slate-500 ml-1 font-poppins">
-                          clicks
-                        </span>
-                      </div> */}
                     </div>
                   </div>
 
@@ -643,13 +638,13 @@ const Home = () => {
                       {/* Toggle button */}
                       <div
                         onClick={() => {
-                          if (toggling !== link.$id) {
+                          if (!toggling.includes(link.$id)) {
                             handleToggle(link.$id, link.active);
                           }
                         }}
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
                           ${
-                            toggling === link.$id
+                            toggling.includes(link.$id)
                               ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
                               : link.active
                               ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
@@ -658,7 +653,7 @@ const Home = () => {
                         `}
                       >
                         <button className="bg-transparent border-none focus:outline-none pointer-events-none">
-                          {toggling === link.$id ? (
+                          {toggling.includes(link.$id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : link.active ? (
                             <ToggleRight className="w-4 h-4" />
@@ -672,17 +667,17 @@ const Home = () => {
                       <div
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
                         ${
-                          deleting === link.$id
+                          deleting.includes(link.$id)
                             ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
                             : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
                         }`}
                       >
                         <button
                           onClick={() => handleDelete(link.$id)}
-                          disabled={deleting === link.$id}
+                          disabled={deleting.includes(link.$id)}
                           className="bg-transparent border-none focus:outline-none"
                         >
-                          {deleting === link.$id ? (
+                          {deleting.includes(link.$id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <Trash2 className="w-4 h-4" />
@@ -727,15 +722,6 @@ const Home = () => {
                   </div>
 
                   <div className="flex items-center gap-6">
-                    {/* <div className="text-left">
-                      <p className="text-sm font-medium text-white font-poppins">
-                        {link.clicks?.toLocaleString() || 0}
-                      </p>
-                      <p className="text-xs text-slate-300 font-poppins">
-                        Clicks
-                      </p>
-                    </div> */}
-
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleReorderLink(link.$id, "up")}
@@ -763,13 +749,13 @@ const Home = () => {
                       {/* Toggle button */}
                       <div
                         onClick={() => {
-                          if (toggling !== link.$id) {
+                          if (!toggling.includes(link.$id)) {
                             handleToggle(link.$id, link.active);
                           }
                         }}
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
                           ${
-                            toggling === link.$id
+                            toggling.includes(link.$id)
                               ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
                               : link.active
                               ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
@@ -778,7 +764,7 @@ const Home = () => {
                         `}
                       >
                         <button className="bg-transparent border-none focus:outline-none pointer-events-none">
-                          {toggling === link.$id ? (
+                          {toggling.includes(link.$id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : link.active ? (
                             <ToggleRight className="w-4 h-4" />
@@ -792,17 +778,17 @@ const Home = () => {
                       <div
                         className={`relative inline-flex items-center justify-center p-1.5 rounded-lg transition-all
                         ${
-                          deleting === link.$id
+                          deleting.includes(link.$id)
                             ? "bg-gray-700 text-gray-300 cursor-progress opacity-70"
                             : "bg-rose-700/10 text-rose-500 hover:bg-rose-700/20 cursor-pointer"
                         }`}
                       >
                         <button
                           onClick={() => handleDelete(link.$id)}
-                          disabled={deleting === link.$id}
+                          disabled={deleting.includes(link.$id)}
                           className="bg-transparent border-none focus:outline-none"
                         >
-                          {deleting === link.$id ? (
+                          {deleting.includes(link.$id) ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <Trash2 className="w-4 h-4" />

@@ -36,7 +36,10 @@ function Navbar() {
   const { pathname } = useLocation();
 
   const homeRoute = pathname === "/";
-  const authRoute = ["/login", "/signup"].includes(pathname);
+  const authRoute = ["/login", "/signup", "/forgot-password"].includes(
+    pathname
+  );
+  
   const verifyRoute = pathname.startsWith("/account/verify");
 
   useEffect(() => {

@@ -27,7 +27,6 @@ import {
   FaSlack,
   FaTelegram,
   FaWhatsapp,
-  FaPinterestP,
 } from "react-icons/fa";
 import { SiNotion, SiLeetcode, SiDailydotdev } from "react-icons/si";
 import { Query } from "appwrite";
